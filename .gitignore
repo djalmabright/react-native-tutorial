@@ -3,6 +3,11 @@ logs
 *.log
 npm-debug.log*
 
+# Build output
+ios/build
+android/app/build
+android/.gradle
+
 # Runtime data
 pids
 *.pid
