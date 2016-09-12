@@ -3,6 +3,38 @@ logs
 *.log
 npm-debug.log*
 
+# config
+constants/config.js
+.env
+
+# Patch orig/reject files
+*.orig
+*.rej
+*.swp
+
+# .DS_Store
+.DS_Store
+
+# node-persist
+.node-persist
+
+# IDE data
+.vscode
+.idea
+.deco
+ios/Chat.xcodeproj/project.xcworkspace/xcuserdata
+tsconfig.json
+configure.deco.js
+
+# Build output
+ios/build
+ios/Chat.xcodeproj/xcuserdata
+android/local.properties
+android/build
+android/app/build
+android/.gradle
+android/.idea
+
 # Runtime data
 pids
 *.pid
