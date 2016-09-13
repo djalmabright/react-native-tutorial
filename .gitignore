@@ -5,6 +5,7 @@ npm-debug.log*
 
 # Build output
 ios/build
+android/build
 android/app/build
 android/.gradle
 
