@@ -3,11 +3,16 @@ logs
 *.log
 npm-debug.log*
 
+# .DS_Store
+.DS_Store
+
 # Build output
 ios/build
+ios/Chat.xcodeproj/xcuserdata
 android/build
 android/app/build
 android/.gradle
+android/.idea
 
 # Runtime data
 pids
