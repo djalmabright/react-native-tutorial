@@ -13,6 +13,8 @@ npm-debug.log*
 # IDE data
 .vscode
 .idea
+ios/Chat.xcodeproj/project.xcworkspace/xcuserdata
+tsconfig.json
 
 # Build output
 ios/build

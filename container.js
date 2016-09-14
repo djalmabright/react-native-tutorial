@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 
 import {
   ActivityIndicator,
@@ -12,7 +12,10 @@ import {connect} from 'react-redux';
 
 import {connectionActions} from './actions';
 import {ConnectionState} from './constants';
-import {Conversation} from './components/conversation';
+import {
+  Conversation,
+  styles,
+} from './components';
 
 const mapStateToProps =
   state => ({
@@ -25,23 +28,9 @@ const mapDispatchToProps =
     connect: () => connectionActions.connect()(dispatch),
   });
 
-class BareContainer extends React.Component {
+class UnconnectedContainer extends Component {
   render() {
-    return (
-      <View style={this.containerStyle()}>
-        {this.renderChat()}
-      </View>
-    );
-  }
-
-  componentDidMount() {
-    this.props.connect();
-  }
-
-  renderChat() {
     const {connectionState, failureTrace} = this.props;
-
-    const center = {alignItems: 'center', justifyContent: 'center'};
 
     switch (connectionState) {
       case ConnectionState.Idle:
@@ -50,7 +39,7 @@ class BareContainer extends React.Component {
         return (
           <ActivityIndicator
             animating={true}
-            style={center}
+            style={[styles.flex, styles.column, styles.center]}
             size='large'
           />
         );
@@ -63,20 +52,20 @@ class BareContainer extends React.Component {
                 animationType={'slide'}
                 transparent={false}
                 visible={true}
-                style={center}
+                style={styles.center}
                 onRequestClose={this.onReconnect.bind(this)}>
-              <View style={{marginTop: 30}}>
+              <View style={styles.marginTop}>
                 <View>
                   <Text>
                     Failed to connect to the PubNub service
                   </Text>
-                  <View style={{margin: 20}}>
-                    <Text style={{fontFamily: 'Courier', fontSize: 10, color: 'red'}}>
+                  <View style={styles.vmargin}>
+                    <Text style={styles.stackTrace}>
                       {failureTrace}
                     </Text>
                   </View>
                   <TouchableHighlight onPress={this.onReconnect.bind(this)}>
-                    <Text style={{color: 'royalblue'}}>Reconnect</Text>
+                    <Text style={styles.button}>Reconnect</Text>
                   </TouchableHighlight>
                 </View>
               </View>
@@ -88,8 +77,8 @@ class BareContainer extends React.Component {
     }
   }
 
-  containerStyle() {
-    return {marginTop: 30};
+  componentDidMount() {
+    this.props.connect();
   }
 
   onReconnect() {
@@ -98,4 +87,4 @@ class BareContainer extends React.Component {
 }
 
 export const Container =
-  connect(mapStateToProps, mapDispatchToProps)(BareContainer);
+  connect(mapStateToProps, mapDispatchToProps)(UnconnectedContainer);
