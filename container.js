@@ -30,18 +30,6 @@ const mapDispatchToProps =
 
 class UnconnectedContainer extends Component {
   render() {
-    return (
-      <View style={[styles.container, styles.row]}>
-        {this.renderChat()}
-      </View>
-    );
-  }
-
-  componentDidMount() {
-    this.props.connect();
-  }
-
-  renderChat() {
     const {connectionState, failureTrace} = this.props;
 
     switch (connectionState) {
@@ -51,7 +39,7 @@ class UnconnectedContainer extends Component {
         return (
           <ActivityIndicator
             animating={true}
-            style={[styles.column, styles.center]}
+            style={[styles.flex, styles.column, styles.center]}
             size='large'
           />
         );
@@ -87,6 +75,10 @@ class UnconnectedContainer extends Component {
       default:
         throw new Error(`Unknown state: ${connectionState}`);
     }
+  }
+
+  componentDidMount() {
+    this.props.connect();
   }
 
   onReconnect() {

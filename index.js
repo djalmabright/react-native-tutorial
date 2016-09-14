@@ -14,6 +14,8 @@ import {Provider} from 'react-redux';
 import {Container} from './container';
 import {configureStore} from './store/configure-store';
 
+import {styles} from './components/styles';
+
 const initialState = {};
 
 const store = configureStore(initialState);
@@ -21,7 +23,7 @@ const store = configureStore(initialState);
 class Chat extends React.Component {
   render() {
     return (
-      <View>
+      <View style={styles.application}>
         <Provider store={store}>
           <Container />
         </Provider>

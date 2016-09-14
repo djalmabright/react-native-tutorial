@@ -7,21 +7,34 @@ import {
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import {styles} from './styles';
+import {iconSize, styles} from './styles';
 
 export class ChatUsers extends Component {
   render() {
     const {users} = this.props;
 
+    const containerStyle = [
+      styles.row,
+      styles.users,
+      styles.marginLeft,
+      styles.marginTop,
+      {flex: 0},
+    ];
+
+    const textStyle = [
+      styles.marginTop,
+      styles.marginLeft,
+    ];
+
     return (
-        <View style={[styles.users, styles.marginLeft]}>
-          <View>
-            <Icon name="people" size={50} />
-          </View>
-          <View style={[styles.marginTop, styles.marginLeft]}>
-            <Text>{users.length} online</Text>
-          </View>
+      <View style={containerStyle}>
+        <View>
+          <Icon name="people" size={iconSize} />
         </View>
+        <View style={textStyle}>
+          <Text>{users.length} online</Text>
+        </View>
+      </View>
     );
   }
 }

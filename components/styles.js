@@ -1,6 +1,10 @@
 import {StyleSheet} from 'react-native';
 
 export const styles = StyleSheet.create({
+  application: {
+    alignSelf: 'stretch',
+    flex: 1,
+  },
   button: {
     color: 'royalblue',
   },
@@ -8,12 +12,24 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  column: {
+  typing: {
+    backgroundColor: '#eee',
+  },
+  conversation: {
+    alignSelf: 'stretch',
+  },
+  history: {
+    flex: 2,
+    flexDirection: 'row',
+    alignSelf: 'stretch',
+  },
+  flex: {
     flex: 1,
+  },
+  column: {
     flexDirection: 'column',
   },
   row: {
-    flex: 1,
     flexDirection: 'row',
   },
   container: {
@@ -23,6 +39,9 @@ export const styles = StyleSheet.create({
     color: 'red',
     fontFamily: 'Courier',
     fontSize: 10,
+  },
+  padding: {
+    padding: 8,
   },
   vmargin: {
     marginTop: 25,
@@ -35,9 +54,7 @@ export const styles = StyleSheet.create({
     marginLeft: 5,
   },
   users: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-start'
   },
 });
 
