@@ -4,15 +4,21 @@ import {
   createStore,
 } from 'redux';
 
+import thunk from 'redux-thunk';
+
+import {logger} from './logger';
+
 import {rootReducer} from '../reducers';
 
 export const configureStore = initialState => {
-  const store = createStore(rootReducer, initialState);
+  const middleware = applyMiddleware(logger, thunk);
+
+  const store = createStore(rootReducer, initialState, middleware);
 
   if (module.hot) {
     module.hot.accept(() => {
-      const {reducer} = require('../reducers');
-      store.replaceReducer(reducer);
+      const {rootReducer} = require('../reducers');
+      store.replaceReducer(rootReducer);
     });
   }
 

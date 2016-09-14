@@ -14,7 +14,9 @@ import {Provider} from 'react-redux';
 import {Container} from './container';
 import {configureStore} from './store/configure-store';
 
-const store = configureStore();
+const initialState = {};
+
+const store = configureStore(initialState);
 
 class Chat extends React.Component {
   render() {
