@@ -1,11 +1,11 @@
-import React from 'react';
+import React, {Component} from 'react';
 
 import {
   View,
   Text
 } from 'react-native';
 
-export class Conversation extends React.Component {
+export class Conversation extends Component {
   render() {
     return (
       <View>

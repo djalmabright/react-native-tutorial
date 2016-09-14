@@ -2,7 +2,7 @@ import 'es5-shim';
 import 'es6-shim';
 import 'es6-promise';
 
-import React from 'react';
+import React, {Component} from 'react';
 
 import {
   AppRegistry,
