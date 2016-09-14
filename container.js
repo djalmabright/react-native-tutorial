@@ -28,10 +28,10 @@ const mapDispatchToProps =
     connect: () => connectionActions.connect()(dispatch),
   });
 
-class BareContainer extends Component {
+class UnconnectedContainer extends Component {
   render() {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.row]}>
         {this.renderChat()}
       </View>
     );
@@ -51,7 +51,7 @@ class BareContainer extends Component {
         return (
           <ActivityIndicator
             animating={true}
-            style={styles.center}
+            style={[styles.column, styles.center]}
             size='large'
           />
         );
@@ -95,4 +95,4 @@ class BareContainer extends Component {
 }
 
 export const Container =
-  connect(mapStateToProps, mapDispatchToProps)(BareContainer);
+  connect(mapStateToProps, mapDispatchToProps)(UnconnectedContainer);

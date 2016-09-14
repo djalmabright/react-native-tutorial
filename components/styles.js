@@ -2,19 +2,22 @@ import {StyleSheet} from 'react-native';
 
 export const styles = StyleSheet.create({
   button: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: 'royalblue',
   },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container: {
-    marginTop: 25,
+  column: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  row: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center'
+  },
+  container: {
+    marginTop: 25,
   },
   stackTrace: {
     color: 'red',
@@ -26,6 +29,16 @@ export const styles = StyleSheet.create({
     marginBottom: 25,
   },
   marginTop: {
-    marginTop: 25,
-  }
+    marginTop: 15,
+  },
+  marginLeft: {
+    marginLeft: 5,
+  },
+  users: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
 });
+
+export const iconSize = 40;

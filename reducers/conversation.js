@@ -1,7 +1,7 @@
 import {fromJS} from 'immutable';
 
 export const initialState = fromJS({
-  messages: [],
+  users: [],
 });
 
 export const conversationReducer = (state = initialState, action) => {
