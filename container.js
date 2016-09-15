@@ -13,8 +13,11 @@ import {connect} from 'react-redux';
 
 import {connectionActions} from './actions';
 import {ConnectionState} from './constants';
-import Conversation from './components/Conversation';
-import s from './styles';
+import {AuthenticationService} from './services';
+
+import {Conversation} from './components/Conversation';
+
+import styles from './styles';
 
 const mapStateToProps =
   state => ({
@@ -24,10 +27,11 @@ const mapStateToProps =
 
 const mapDispatchToProps =
   dispatch => ({
-    connect: () => connectionActions.connect()(dispatch),
+    connect: authenticationToken =>
+      connectionActions.connect(authenticationToken)(dispatch),
   });
 
-class UnconnectedContainer extends Component {
+class BareContainer extends Component {
   render() {
     const {connectionState, failureTrace} = this.props;
 
@@ -37,8 +41,8 @@ class UnconnectedContainer extends Component {
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
-            animating={false}
-            style={[s.flx1, s.flxCol, s.itemsCenter, s.jcCenter]}
+            animating={true}
+            style={[styles.flx1, styles.flxCol, styles.itemsCenter, styles.jcCenter]}
             size='large'
           />
         );
@@ -53,18 +57,18 @@ class UnconnectedContainer extends Component {
                 visible={true}
                 style={styles.center}
                 onRequestClose={this.onReconnect.bind(this)}>
-              <View style={s.mt1}>
+              <View style={styles.mt1}>
                 <View>
                   <Text>
                     Failed to connect to the PubNub service
                   </Text>
-                  <View style={[s.mt3, s.mb3]}>
-                    <Text style={s.stackTrace}>
+                  <View style={[styles.mt3, styles.mb3]}>
+                    <Text style={styles.stackTrace}>
                       {failureTrace}
                     </Text>
                   </View>
                   <TouchableHighlight onPress={this.onReconnect.bind(this)}>
-                    <Text style={s.royalBlue}>Reconnect</Text>
+                    <Text style={styles.royalBlue}>Reconnect</Text>
                   </TouchableHighlight>
                 </View>
               </View>
@@ -77,11 +81,15 @@ class UnconnectedContainer extends Component {
   }
 
   componentDidMount() {
-    this.props.connect();
+    /// This will open up a browser instance that will go through the GitHub login process
+    /// and when it is finished, it will bounce back to reactchat://authenticationToken,
+    /// which we will extract through our url handler and begin the PubNub connect handshake.
+    Linking.addEventListener('url',
+      event => {
+        this.props.connect(AuthenticationService.getTokenFromUri(event.url));
+      });
 
-    // TODO: clean up
-    // Linking.openURL('http://localhost:8080/login')
-      // .then(res => console.log(res));
+    Linking.openURL('http://localhost:8080/login');
   }
 
   onReconnect() {
@@ -89,5 +97,4 @@ class UnconnectedContainer extends Component {
   }
 }
 
-export const Container =
-  connect(mapStateToProps, mapDispatchToProps)(UnconnectedContainer);
+export const Container = connect(mapStateToProps, mapDispatchToProps)(BareContainer);

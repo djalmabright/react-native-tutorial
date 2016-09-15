@@ -4,19 +4,17 @@ export const commonConfiguration = {
   ssl: false,
 };
 
-module.exports = {
-  config: {
-    host: 'http://localhost:8080',
-    port: 8080,
-    client: commonConfiguration,
-    server: Object.assign({}, commonConfiguration, {
-      secretKey: '',
-      authKey: '',
-      ssl: false,
-    }),
-    github: {
-      clientID: '4591e867f77e815d446e',
-      clientSecret: 'a96497bed46dd07786b9b2fff16d59e25c9758cc',
-    },
+export const config = {
+  host: 'http://localhost:8080',
+  port: 8080,
+  client: commonConfiguration,
+  server: Object.assign({}, commonConfiguration, {
+    secretKey: '',
+    authKey: '',
+    ssl: false,
+  }),
+  github: {
+    clientID: '4591e867f77e815d446e',
+    clientSecret: 'a96497bed46dd07786b9b2fff16d59e25c9758cc',
   },
-}
+};

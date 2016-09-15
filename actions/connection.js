@@ -5,13 +5,13 @@ export const CONNECTED = 'CONNECTED';
 export const DISCONNECTED = 'DISCONNECTED';
 
 export const connectionActions = {
-  connect() {
+  connect(authenticationToken) {
     return dispatch => {
       dispatch({type: CONNECTING});
 
-      connect()
-        .then(() => {
-          dispatch({type: CONNECTED});
+      connect(authenticationToken)
+        .then(userId => {
+          dispatch({type: CONNECTED, payload: {userId}});
         })
         .catch(error => {
           dispatch({type: DISCONNECTED, payload: {error}});

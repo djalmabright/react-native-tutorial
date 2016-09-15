@@ -10,15 +10,17 @@ const presenceSubscriptions = new Set();
 
 const messageSubscriptons = new Set();
 
-const identifier = () => Math.random().toString(10).slice(6);
+const identifier = () => Math.random().toString(10).slice(12);
 
-export const connect = () => {
+export const connect = authenticationToken => {
   if (connection) {
     return connection;
   }
 
   connection = new Promise((resolve, reject) => {
-    const options = Object.assign({}, config.client, {uuid: identifier()});
+    const uuid = identifier();
+
+    const options = Object.assign({}, config.client, {uuid});
 
     const pubnub = new PubNub(options);
 
@@ -59,7 +61,7 @@ export const connect = () => {
 
     pubnub.addListener(initialHandler);
 
-    return handshake(pubnub).then(resolve).catch(reject);
+    return handshake(pubnub).then(() => resolve(uuid)).catch(reject);
   });
 
   return connection;
@@ -110,13 +112,17 @@ export const subscribe = (channel, presenceHandler, messageHandler) => {
   };
 };
 
-export const history = (channel, startTime, callback) =>
-  console.log("dead");
-  connect().then(handle => {
-    handle.history(
-      { channel,
-        count: 15,
-        start: startTime },
-      callback
-    )
+export const history = (channel, startTime) =>
+  new Promise((resolve, reject) => {
+    connect().then(handle =>
+      handle.history(
+        response => resolve(response),
+        channel,
+        null,
+        null,
+        null,
+        true,
+        true,
+        error => reject(error)))
+      .catch(reject);
   });

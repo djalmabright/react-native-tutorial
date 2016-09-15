@@ -13,13 +13,13 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import User from './User';
 
-import s from '../styles';
+import styles from '../styles';
 
-class ChatUsers extends Component {
-  userSource = new ListView.DataSource({rowHasChanged: (lhs, rhs) => lhs !== rhs});
-
+export class ChatUsers extends Component {
   constructor() {
     super();
+
+    this.userSource = new ListView.DataSource({rowHasChanged: (lhs, rhs) => lhs !== rhs});
 
     this.state = {
       userSource: this.userSource.cloneWithRows([]),
@@ -38,27 +38,28 @@ class ChatUsers extends Component {
     const {users} = this.props;
 
     const containerStyle = [
-      s.flxRow,
-      s.jcStart,
-      s.bgBase,
-      s.p1,
-      s.pt3,
+      styles.flxRow,
+      styles.jcStart,
+      styles.bgBase,
+      styles.p1,
+      styles.pt3,
     ];
 
     return (
       <View style={containerStyle}>
         <View>
-          <Icon name="people" size={s.iconSize} color="white" />
+          <Icon name="people" size={styles.iconSize} color="white" />
         </View>
-        <View style={[s.ml1, s.mt1]}>
-          <Text style={s.white}>{users.length} online</Text>
+        <View style={[styles.ml1, styles.mt1]}>
+          <Text style={styles.white}>
+            {users.length} online
+          </Text>
         </View>
-        <View style={[s.flxRow, s.ml2]}>
+        <View style={[styles.flxRow, styles.ml2]}>
           {users.map(id =>
-            <View key={id} style={[s.ml1, s.w2, s.h2, s.rounded6, {overflow: 'hidden'}]}>
-              <User id={id} style={[s.w2, s.h2]} />
-            </View>
-          )}
+            <View key={id} style={[styles.ml1, styles.w2, styles.h2, styles.rounded6, {overflow: 'hidden'}]}>
+              <User id={id} style={[styles.w2, styles.h2]} />
+            </View>)}
         </View>
       </View>
     );
@@ -68,5 +69,3 @@ class ChatUsers extends Component {
 ChatUsers.propTypes = {
   users: React.PropTypes.array,
 };
-
-export default ChatUsers;

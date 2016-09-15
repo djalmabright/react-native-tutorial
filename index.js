@@ -11,10 +11,10 @@ import {
 
 import {Provider} from 'react-redux';
 
-import {Container} from './container';
 import {configureStore} from './store/configure-store';
+import {Container} from './container';
 
-import s from './styles';
+import styles from './styles';
 
 const initialState = {};
 
@@ -23,7 +23,7 @@ const store = configureStore(initialState);
 class Chat extends React.Component {
   render() {
     return (
-      <View style={[s.flx1, s.selfStretch]}>
+      <View style={[styles.flx1, styles.selfStretch]}>
         <Provider store={store}>
           <Container />
         </Provider>

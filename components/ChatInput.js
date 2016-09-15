@@ -7,43 +7,48 @@ import {
   Image,
 } from 'react-native';
 
-import s from '../styles';
-
 import {MKButton} from 'react-native-material-kit';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import {User} from './User';
+
+import styles from '../styles';
 
 const Fab = MKButton.plainFab()
   .withBackgroundColor('#26a69a')
-  .withStyle([ s.w3, s.h3, s.rounded, s.border0 ])
+  .withStyle([ styles.w3, styles.h3, styles.rounded, styles.border0 ])
   .build();
 
-class ChatInput extends Component {
-  onSubmit = (e) => {
-    e.preventDefault();
-  }
-
-  onChange = () => {}
-
+export class ChatInput extends Component {
   render() {
-    const { props, onSubmit, onChange } = this;
+    const {currentUserId} = this.props;
 
-    /*
-     * temporary
-     */
-    const id = Math.random().toString(10).slice(6);
-    const imgURL = 'http://robohash.org/' + id + '?set=set2&bgset=bg2&size=70x70';
+    const containerStyle = [
+      styles.flx1,
+      styles.flxCol,
+      styles.bgBase,
+      styles.pv1,
+      styles.ph2,
+      {maxHeight: 135},
+    ];
 
-    const containerStyle = [ s.flx1, s.flxCol, s.bgBase, s.pv1, s.ph2, { maxHeight: 135 } ];
-
-    const inputStyle = [ s.white, { width: 220 }, s.h3, s.f5, s.p0, s.m0 ];
+    const inputStyle = [
+      styles.white,
+      styles.h3,
+      styles.f5,
+      styles.p0,
+      styles.m0,
+      {width: 220},
+    ];
 
     return (
       <View style={containerStyle}>
-        <View style={[s.flxRow, s.jcStart]}>
-          <View style={[s.mt1]}>
+        <View style={[styles.flxRow, styles.jcStart]}>
+          <View style={[styles.mt1]}>
             <Icon name="message" size={30} color="white" />
           </View>
-          <View style={[s.h3, s.mh2, s.borderBHl, { borderBottomColor: 'white' }]}>
+          <View style={[styles.h3, styles.mh2, styles.borderBHl, { borderBottomColor: 'white' }]}>
             <TextInput ref="txtMessage"
               placeholder="Type your message"
               placeholderTextColor="#ccc"
@@ -53,12 +58,14 @@ class ChatInput extends Component {
             <Icon name="send" size={25} color="white" />
           </Fab>
         </View>
-        <View style={[s.mt2, s.flxRow, s.rounded6, s.bgSilver, s.h2, { width: 160 }]}>
-          <View style={[s.rounded6, s.w2, s.h2, { overflow: 'hidden' }]}>
-            <Image style={[s.w2, s.h2]} source={{uri: imgURL}} />
+        <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, { width: 160 }]}>
+          <View style={[styles.rounded6, styles.w2, styles.h2, { overflow: 'hidden' }]}>
+            <User id={currentUserId} />
           </View>
-          <View style={[s.ml1]}>
-            <Text style={[s.black, s.italics, s.f6, { marginTop: 10, fontStyle: 'italic' }]}>{id}</Text>
+          <View style={[styles.ml1]}>
+            <Text style={[styles.black, styles.italics, styles.f6, { marginTop: 10, fontStyle: 'italic' }]}>
+              {currentUserId}
+            </Text>
           </View>
         </View>
       </View>
@@ -67,11 +74,7 @@ class ChatInput extends Component {
 }
 
 ChatInput.propTypes = {
-  userID: PropTypes.number,
+  currentUserId: PropTypes.string,
   sendMessage: PropTypes.func,
   setTypingState: PropTypes.func,
 };
-
-export default ChatInput;
-
-

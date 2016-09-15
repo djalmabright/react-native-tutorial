@@ -7,42 +7,50 @@ import {
   Text,
 } from 'react-native';
 
-import ChatHistory from './ChatHistory';
-import ChatInput from './ChatInput';
-import ChatUsers from './ChatUsers';
+import {ChatHistory} from './ChatHistory';
+import {ChatInput} from './ChatInput';
+import {ChatUsers} from './ChatUsers';
 
-import s from '../styles';
 import {conversationActions} from '../actions';
 
-import * as pubnub from '../services/pubnub';
+import {
+  subscribe,
+  history,
+} from '../services/pubnub';
+
+import styles from '../styles';
 
 const channel = 'ReactChat';
 
-export class UnconnectedConversation extends Component {
+class BareConversation extends Component {
   render() {
-    const {history, users} = this.props;
+    const {
+      currentUserId,
+      history,
+      users,
+    } = this.props;
 
     const containerStyle = [
-      s.flx1,
-      s.flxCol,
-      s.selfStretch,
+      styles.flx1,
+      styles.flxCol,
+      styles.selfStretch,
     ];
 
     return (
       <View style={containerStyle}>
         <ChatUsers users={users} />
         <ChatHistory history={history} fetchHistory={this.fetchHistory.bind(this)} />
-        <ChatInput />
+        <ChatInput currentUserId={currentUserId} />
       </View>
     );
   }
 
   componentDidMount() {
-    this.subscription = pubnub.subscribe(
+    this.subscription = subscribe(
       channel,
-      this.onPresenceChange.bind(this),
-      this.onMessageReceived.bind(this)
-    );
+      p => this.onPresenceChange(p),
+      m => this.onMessageReceived(m));
+
     this.fetchHistory();
   }
 
@@ -81,35 +89,22 @@ export class UnconnectedConversation extends Component {
   }
 
   fetchHistory() {
-    const { props } = this;
-
-    pubnub.history(
-      channel,
-      props.lastMessageTimestamp,
-      (status, response) => {
-        // index0 is an array of messages
-        // index1 is the start date of the messages
-        // props.addHistory(data[0], data[1])
-      }
-    );
+    history(channel).then(({status, response}) => {
+      debugger;
+    })
   }
 }
 
-UnconnectedConversation.propTypes = {
+BareConversation.propTypes = {
   users: PropTypes.array,
   typingUsers: PropTypes.array,
   history: PropTypes.array,
   lastMessageTimestamp: PropTypes.string,
 };
 
-const mapStateToProps = state => state.conversation.toJS();
-const mapDispatchToProps = conversationActions;
+const mapStateToProps = state =>
+  Object.assign({}, state.conversation.toJS(), {
+    currentUserId: state.connection.get('currentUserId'),
+  });
 
-//const mapDispatchToProps = dispatch => ({
-  //addUser: userId => dispatch(conversationActions.addUser(userId)),
-  //removeUser: userId => dispatch(conversationActions.removeUser(userId)),
-  //startTyping: userId => dispatch(conversationActions.startTyping(userId)),
-  //stopTyping: userId => dispatch(conversationActions.stopTyping(userId)),
-//});
-
-export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedConversation);
+export const Conversation = connect(mapStateToProps, conversationActions)(BareConversation);

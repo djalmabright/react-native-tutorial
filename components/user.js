@@ -2,14 +2,20 @@ import React, {Component} from 'react';
 
 import {Image} from 'react-native';
 
-class User extends Component {
+import styles from '../styles';
+
+export class User extends Component {
   render() {
     const {id} = this.props;
 
+    const {robotSize} = styles;
+
+    const dimensions = `${robotSize}x${robotSize}`;
+
     return (
       <Image
-        style={{width: 32, height: 32}}
-        source={{uri: `https://robohash.org/${id}?set=set2&bgset=bg2&size=32x32`}}
+        style={{width: robotSize, height: robotSize}}
+        source={{uri: `https://robohash.org/${id}?set=set2&bgset=bg2&size=${dimensions}`}}
       />
     );
   }
@@ -18,5 +24,3 @@ class User extends Component {
 User.propTypes = {
   id: React.PropTypes.string,
 };
-
-export default User;
