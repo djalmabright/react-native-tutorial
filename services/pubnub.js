@@ -126,3 +126,11 @@ export const history = (channel, startTime) =>
         error => reject(error)))
       .catch(reject);
   });
+
+export const publishTypingState = (channel, uuid, isTyping) =>
+  connect().then(handle =>
+    handle.state({
+      channel,
+      uuid,
+      state: {isTyping},
+    }));

@@ -10,12 +10,14 @@ import {
 import {ChatHistory} from './ChatHistory';
 import {ChatInput} from './ChatInput';
 import {ChatUsers} from './ChatUsers';
+import {ChatUsersTyping} from './ChatUsersTyping';
 
 import {conversationActions} from '../actions';
 
 import {
-  subscribe,
   history,
+  publishTypingState,
+  subscribe,
 } from '../services/pubnub';
 
 import styles from '../styles';
@@ -28,6 +30,7 @@ class BareConversation extends Component {
       currentUserId,
       history,
       users,
+      typingUsers,
     } = this.props;
 
     const containerStyle = [
@@ -40,7 +43,11 @@ class BareConversation extends Component {
       <View style={containerStyle}>
         <ChatUsers users={users} />
         <ChatHistory history={history} fetchHistory={this.fetchHistory.bind(this)} />
-        <ChatInput currentUserId={currentUserId} />
+        <ChatUsersTyping users={typingUsers} />
+        <ChatInput
+          currentUserId={currentUserId}
+          setTypingState={typing => this.onTypingStateChanged(typing)}
+        />
       </View>
     );
   }
@@ -57,8 +64,19 @@ class BareConversation extends Component {
   componentWillUnmount() {
     if (this.subscription) {
       this.subscription.unsubscribe();
-      delete this.subscription;
+      this.subscription = null;
     }
+  }
+
+  onTypingStateChanged(typing) {
+    if (typing) {
+      this.props.startTyping(this.props.currentUserId);
+    }
+    else {
+      this.props.stopTyping(this.props.currentUserId);
+    }
+
+    publishTypingState(channel, this.props.currentUserId, typing);
   }
 
   onMessageReceived(message) {
@@ -96,6 +114,7 @@ class BareConversation extends Component {
 }
 
 BareConversation.propTypes = {
+  currentUserId: PropTypes.string,
   users: PropTypes.array,
   typingUsers: PropTypes.array,
   history: PropTypes.array,

@@ -9,8 +9,7 @@ import {
 import {ConnectionState} from '../constants';
 
 export const initialState = fromJS({
-  // state: ConnectionState.Idle, // connection state
-  state: ConnectionState.Connected, // connection state
+  state: ConnectionState.Idle, // connection state
   error: null,                 // failure exception
 });
 

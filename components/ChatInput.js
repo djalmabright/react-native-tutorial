@@ -30,7 +30,7 @@ export class ChatInput extends Component {
       styles.bgBase,
       styles.pv1,
       styles.ph2,
-      {maxHeight: 135},
+      {maxHeight: 115},
     ];
 
     const inputStyle = [
@@ -49,27 +49,44 @@ export class ChatInput extends Component {
             <Icon name="message" size={30} color="white" />
           </View>
           <View style={[styles.h3, styles.mh2, styles.borderBHl, { borderBottomColor: 'white' }]}>
-            <TextInput ref="txtMessage"
+            <TextInput
               placeholder="Type your message"
               placeholderTextColor="#ccc"
-              style={inputStyle}/>
+              style={inputStyle}
+              onChange={text => this.onChange(text)}
+            />
           </View>
           <Fab>
             <Icon name="send" size={25} color="white" />
           </Fab>
         </View>
-        <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, { width: 160 }]}>
+        <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, {width: 120}]}>
           <View style={[styles.rounded6, styles.w2, styles.h2, { overflow: 'hidden' }]}>
             <User id={currentUserId} />
           </View>
           <View style={[styles.ml1]}>
-            <Text style={[styles.black, styles.italics, styles.f6, { marginTop: 10, fontStyle: 'italic' }]}>
+            <Text style={[styles.black, styles.italics, styles.f6, {marginTop: 10, fontStyle: 'italic'}]}>
               {currentUserId}
             </Text>
           </View>
         </View>
       </View>
     );
+  }
+
+  onChange(text) {
+    if (this.timeout != null) {
+      clearTimeout(this.timeout);
+    }
+
+    const {setTypingState} = this.props;
+
+    this.timeout = setTimeout(() => {
+      debugger;
+      setTypingState(false);
+    }, 1500);
+
+    setTypingState(true);
   }
 }
 
