@@ -22,6 +22,7 @@ tsconfig.json
 # Build output
 ios/build
 ios/Chat.xcodeproj/xcuserdata
+android/local.properties
 android/build
 android/app/build
 android/.gradle

@@ -6,18 +6,19 @@ import {
 
 let connection;
 
+const presenceSubscriptions = new Set();
+
+const messageSubscriptons = new Set();
+
 export const connect = () => {
   if (connection) {
     return connection;
   }
 
   connection = new Promise((resolve, reject) => {
-    const pubnub = new PubNub({
-      publishKey: config.pubnub.publishKey,
-      subscribeKey: config.pubnub.subscribeKey,
-      ssl: config.pubnub.ssl,
-      uuid: identifier(),
-    });
+    const options = Object.assign({}, config.client, {uuid: identifier()});
+
+    const pubnub = new PubNub(options);
 
     const initialHandler = {
       status: statusEvent => {
@@ -36,8 +37,13 @@ export const connect = () => {
 
         pubnub.removeListener(initialHandler);
 
-        // reconnect handler
         pubnub.addListener({
+          message: function () {
+            messageSubscriptons.forEach(handler => handler.apply(undefined, arguments));
+          },
+          presence: function () {
+            presenceSubscriptions.forEach(handler => handler.apply(undefined, arguments));
+          },
           status: statusEvent => {
             switch (statusEvent.category) {
               case 'PNNetworkDownCategory':
@@ -64,13 +70,13 @@ const handshake = pubnub =>
         reject(new Error(`PubNub service failed to respond to time request: ${status.error}`));
       }
       else {
-        pubnub.subscribe(subscriptionOptions(), () => resolve());
+        resolve(pubnub);
       }
     });
   });
 
 export const publish = msg =>
-  connection.then(handle => {
+  connect().then(handle => {
     return new Promise(resolve => {
       handle.publish(msg,
         (status, response) => {
@@ -79,15 +85,33 @@ export const publish = msg =>
     });
   });
 
-const subscriptionOptions = () => ({
-  channels: config.pubnub.channels,
-  message: () => {
-    debugger;
-  },
-  presence: () => {
-    debugger;
-  },
-  withPresence: true,
-});
+export const subscribe = (channel, presenceHandler, messageHandler) => {
+  presenceSubscriptions.add(presenceHandler);
 
-const identifier = () => Math.random().toString(16).slice(2);
+  messageSubscriptons.add(messageHandler);
+
+  return connect().then(handle => {
+    return new Promise((resolve, reject) => {
+      handle.subscribe({
+        error: error => {
+          reject(error);
+        },
+        connect: () => {
+          resolve({
+            unsubscribe: () => {
+              presenceSubscriptions.delete(presenceHandler);
+
+              messageSubscriptons.delete(messageHandler);
+
+              return connect().then(handle => handle.unsubscribe({channel}));
+            },
+          });
+        },
+        channels: [channel],
+        withPresence: true,
+      });
+    });
+  });
+};
+
+const identifier = () => Math.random().toString(10).slice(6);
