@@ -40,22 +40,25 @@ class ChatUsers extends Component {
     const containerStyle = [
       s.flxRow,
       s.jcStart,
-      s.ml2,
-      s.mt3,
+      s.bgBase,
+      s.p1,
+      s.pt3,
     ];
-
-    const textStyle = [ s.ml1, s.mt2 ];
 
     return (
       <View style={containerStyle}>
         <View>
-          <Icon name="people" size={s.iconSize} />
+          <Icon name="people" size={s.iconSize} color="white" />
         </View>
-        <View style={textStyle}>
-          <Text>{users.length} online</Text>
+        <View style={[s.ml1, s.mt1]}>
+          <Text style={s.white}>{users.length} online</Text>
         </View>
-        <View style={[s.flx1, s.flxRow]}>
-          {users.map(id => <View key={id} style={s.p3}><User id={id} /></View>)}
+        <View style={[s.flxRow, s.ml2]}>
+          {users.map(id =>
+            <View key={id} style={[s.ml1, s.w2, s.h2, s.rounded6, {overflow: 'hidden'}]}>
+              <User id={id} style={[s.w2, s.h2]} />
+            </View>
+          )}
         </View>
       </View>
     );

@@ -10,6 +10,8 @@ const presenceSubscriptions = new Set();
 
 const messageSubscriptons = new Set();
 
+const identifier = () => Math.random().toString(10).slice(6);
+
 export const connect = () => {
   if (connection) {
     return connection;
@@ -90,28 +92,31 @@ export const subscribe = (channel, presenceHandler, messageHandler) => {
 
   messageSubscriptons.add(messageHandler);
 
-  return connect().then(handle => {
-    return new Promise((resolve, reject) => {
-      handle.subscribe({
-        error: error => {
-          reject(error);
-        },
-        connect: () => {
-          resolve({
-            unsubscribe: () => {
-              presenceSubscriptions.delete(presenceHandler);
-
-              messageSubscriptons.delete(messageHandler);
-
-              return connect().then(handle => handle.unsubscribe({channel}));
-            },
-          });
-        },
-        channels: [channel],
-        withPresence: true,
-      });
-    });
+  connect().then(handle => {
+    handle.subscribe({
+      channel: channel,
+      withPresence: true,
+    })
   });
+
+  return {
+    unsubscribe: () => {
+      presenceSubscriptions.delete(presenceHandler);
+
+      messageSubscriptons.delete(messageHandler);
+
+      return connect().then(handle => handle.unsubscribe({channel}));
+    },
+  };
 };
 
-const identifier = () => Math.random().toString(10).slice(6);
+export const history = (channel, startTime, callback) =>
+  console.log("dead");
+  connect().then(handle => {
+    handle.history(
+      { channel,
+        count: 15,
+        start: startTime },
+      callback
+    )
+  });

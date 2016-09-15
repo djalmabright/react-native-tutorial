@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 
 import {connect} from 'react-redux';
 
@@ -14,7 +14,7 @@ import ChatUsers from './ChatUsers';
 import s from '../styles';
 import {conversationActions} from '../actions';
 
-import {subscribe} from '../services';
+import * as pubnub from '../services/pubnub';
 
 const channel = 'ReactChat';
 
@@ -38,23 +38,15 @@ export class UnconnectedConversation extends Component {
   }
 
   componentDidMount() {
-    subscribe(
+    this.subscription = pubnub.subscribe(
       channel,
       this.onPresenceChange.bind(this),
-      this.onMessageReceived.bind(this))
-    .then(subscription => {
-      this.subscription = subscription;
-      this.fetchHistory();
-    });
-
-    window.addEventListener('beforeunload', () => this.leaveChat());
+      this.onMessageReceived.bind(this)
+    );
+    this.fetchHistory();
   }
 
   componentWillUnmount() {
-    this.leaveChat();
-  }
-
-  leaveChat() {
     if (this.subscription) {
       this.subscription.unsubscribe();
       delete this.subscription;
@@ -62,12 +54,9 @@ export class UnconnectedConversation extends Component {
   }
 
   onMessageReceived(message) {
-    debugger;
   }
 
   onPresenceChange(presenceData) {
-    debugger;
-
     switch (presenceData.action) {
       case 'join':
         this.props.addUser(presenceData.uuid);
@@ -92,19 +81,35 @@ export class UnconnectedConversation extends Component {
   }
 
   fetchHistory() {
-    throw new Error('Not implemented');
+    const { props } = this;
+
+    pubnub.history(
+      channel,
+      props.lastMessageTimestamp,
+      (status, response) => {
+        // index0 is an array of messages
+        // index1 is the start date of the messages
+        // props.addHistory(data[0], data[1])
+      }
+    );
   }
 }
 
-UnconnectedConversation.propTypes = {};
+UnconnectedConversation.propTypes = {
+  users: PropTypes.array,
+  typingUsers: PropTypes.array,
+  history: PropTypes.array,
+  lastMessageTimestamp: PropTypes.string,
+};
 
 const mapStateToProps = state => state.conversation.toJS();
+const mapDispatchToProps = conversationActions;
 
-const mapDispatchToProps = dispatch => ({
-  addUser: userId => dispatch(conversationActions.addUser(userId)),
-  removeUser: userId => dispatch(conversationActions.removeUser(userId)),
-  startTyping: userId => dispatch(conversationActions.startTyping(userId)),
-  stopTyping: userId => dispatch(conversationActions.stopTyping(userId)),
-});
+//const mapDispatchToProps = dispatch => ({
+  //addUser: userId => dispatch(conversationActions.addUser(userId)),
+  //removeUser: userId => dispatch(conversationActions.removeUser(userId)),
+  //startTyping: userId => dispatch(conversationActions.startTyping(userId)),
+  //stopTyping: userId => dispatch(conversationActions.stopTyping(userId)),
+//});
 
 export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedConversation);

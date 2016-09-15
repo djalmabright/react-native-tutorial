@@ -10,6 +10,9 @@ import s from '../styles';
 
 class ChatHistory extends Component {
   render() {
+    const { props } = this;
+    console.log(props.history);
+
     return (
       <View style={[s.flx2, s.flxRow, s.selfStretch, s.p2]}>
         <ScrollView>

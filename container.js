@@ -30,14 +30,14 @@ const mapDispatchToProps =
 class UnconnectedContainer extends Component {
   render() {
     const {connectionState, failureTrace} = this.props;
-    switch (connectionState) {
 
+    switch (connectionState) {
       case ConnectionState.Idle:
         return null;
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
-            animating={true}
+            animating={false}
             style={[s.flx1, s.flxCol, s.itemsCenter, s.jcCenter]}
             size='large'
           />
