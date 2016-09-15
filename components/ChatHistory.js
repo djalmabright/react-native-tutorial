@@ -6,12 +6,12 @@ import {
   ScrollView,
 } from 'react-native';
 
-import {styles} from './styles';
+import s from '../styles';
 
-export class ChatHistory extends Component {
+class ChatHistory extends Component {
   render() {
     return (
-      <View style={[styles.history, styles.padding]}>
+      <View style={[s.flx2, s.flxRow, s.selfStretch, s.p2]}>
         <ScrollView>
           <Text>Chat history here</Text>
         </ScrollView>
@@ -24,3 +24,5 @@ ChatHistory.propTypes = {
   history: React.PropTypes.array,
   fetchHistory: React.PropTypes.func,
 };
+
+export default ChatHistory;

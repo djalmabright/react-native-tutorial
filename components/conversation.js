@@ -7,11 +7,11 @@ import {
   Text,
 } from 'react-native';
 
-import {ChatHistory} from './chat-history';
-import {ChatTyping} from './chat-typing';
-import {ChatUsers} from './chat-users';
-import {styles} from './styles';
+import ChatHistory from './ChatHistory';
+import ChatInput from './ChatInput';
+import ChatUsers from './ChatUsers';
 
+import s from '../styles';
 import {conversationActions} from '../actions';
 
 import {subscribe} from '../services';
@@ -23,16 +23,16 @@ export class UnconnectedConversation extends Component {
     const {history, users} = this.props;
 
     const containerStyle = [
-      styles.flex,
-      styles.column,
-      styles.conversation,
+      s.flx1,
+      s.flxCol,
+      s.selfStretch,
     ];
 
     return (
       <View style={containerStyle}>
         <ChatUsers users={users} />
         <ChatHistory history={history} fetchHistory={this.fetchHistory.bind(this)} />
-        <ChatTyping />
+        <ChatInput />
       </View>
     );
   }
@@ -96,9 +96,7 @@ export class UnconnectedConversation extends Component {
   }
 }
 
-UnconnectedConversation.propTypes = {
-  users: React.PropTypes.array,
-};
+UnconnectedConversation.propTypes = {};
 
 const mapStateToProps = state => state.conversation.toJS();
 
@@ -109,4 +107,4 @@ const mapDispatchToProps = dispatch => ({
   stopTyping: userId => dispatch(conversationActions.stopTyping(userId)),
 });
 
-export const Conversation = connect(mapStateToProps, mapDispatchToProps)(UnconnectedConversation);
+export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedConversation);
