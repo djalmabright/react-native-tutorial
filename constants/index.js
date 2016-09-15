@@ -1,2 +1,5 @@
-export * from './configuration';
-export * from './connection-state';
+module.exports = Object.assign(
+  {},
+  require('./configuration'),
+  require('./connection-state')
+);

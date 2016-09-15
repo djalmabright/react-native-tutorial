@@ -1,8 +1,7 @@
 import PubNub from 'pubnub';
 
 import {
-  channels,
-  configuration,
+  config,
 } from '../constants';
 
 let connection;
@@ -13,7 +12,12 @@ export const connect = () => {
   }
 
   connection = new Promise((resolve, reject) => {
-    const pubnub = new PubNub(Object.assign({}, configuration, {uuid: identifier()}));
+    const pubnub = new PubNub({
+      publishKey: config.pubnub.publishKey,
+      subscribeKey: config.pubnub.subscribeKey,
+      ssl: config.pubnub.ssl,
+      uuid: identifier(),
+    });
 
     const initialHandler = {
       status: statusEvent => {
@@ -76,7 +80,7 @@ export const publish = msg =>
   });
 
 const subscriptionOptions = () => ({
-  channels,
+  channels: config.pubnub.channels,
   message: () => {
     debugger;
   },

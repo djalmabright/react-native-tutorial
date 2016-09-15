@@ -6,6 +6,7 @@ import {
   Text,
   TouchableHighlight,
   View,
+  Linking
 } from 'react-native';
 
 import {connect} from 'react-redux';
@@ -79,6 +80,10 @@ class UnconnectedContainer extends Component {
 
   componentDidMount() {
     this.props.connect();
+
+    // TODO: clean up
+    Linking.openURL('http://localhost:8080/login')
+      .then(res => console.log(res));
   }
 
   onReconnect() {
