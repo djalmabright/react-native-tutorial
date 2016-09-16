@@ -1,6 +1,7 @@
 import PubNub from 'pubnub';
 
 import {
+  channel,
   config,
 } from '../constants';
 
@@ -24,7 +25,7 @@ export const connect = authenticationToken => {
 
     const pubnub = new PubNub(options);
 
-    // pubnub.auth(authenticationToken);
+    pubnub.setAuthKey(authenticationToken);
 
     const initialHandler = {
       status: statusEvent => {
@@ -92,14 +93,14 @@ export const publish = msg =>
     });
   });
 
-export const subscribe = (channel, presenceHandler, messageHandler) => {
+export const subscribe = (presenceHandler, messageHandler) => {
   presenceSubscriptions.add(presenceHandler);
 
   messageSubscriptons.add(messageHandler);
 
   connect().then(({ pubnub }) => {
     pubnub.subscribe({
-      channel: channel,
+      channel,
       withPresence: true,
     })
   });
@@ -115,7 +116,7 @@ export const subscribe = (channel, presenceHandler, messageHandler) => {
   };
 };
 
-export const history = (channel, startTime) =>
+export const history = (startTime) =>
   new Promise((resolve, reject) => {
     connect().then(({ pubnub }) => {
       pubnub.history({
@@ -123,13 +124,12 @@ export const history = (channel, startTime) =>
         start: startTime,
         count: 15,
       },
-      (status, response) => resolve(response),
-      )
+      (status, response) => resolve(response))
     })
     .catch(reject);
   });
 
-export const publishTypingState = (channel, uuid, isTyping) =>
+export const publishTypingState = (uuid, isTyping) =>
   connect().then(({ pubnub }) =>
     pubnub.state({
       channel,

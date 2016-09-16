@@ -6,6 +6,7 @@ npm-debug.log*
 # Patch orig/reject files
 *.orig
 *.rej
+*.swp
 
 # .DS_Store
 .DS_Store

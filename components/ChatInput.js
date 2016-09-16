@@ -81,9 +81,14 @@ export class ChatInput extends Component {
 
     const {setTypingState} = this.props;
 
-    this.timeout = setTimeout(() => setTypingState(false), 1500);
+    if (text == null || text.length === 0) {
+      setTypingState(false);
+    }
+    else {
+      this.timeout = setTimeout(() => setTypingState(false), 1500);
 
-    setTypingState(true);
+      setTypingState(true);
+    }
   }
 }
 

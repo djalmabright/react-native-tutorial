@@ -14,6 +14,8 @@ import {ChatUsersTyping} from './ChatUsersTyping';
 
 import {conversationActions} from '../actions';
 
+import {channel} from '../constants';
+
 import {
   history,
   publishTypingState,
@@ -21,8 +23,6 @@ import {
 } from '../services/pubnub';
 
 import styles from '../styles';
-
-const channel = 'ReactChat';
 
 class BareConversation extends Component {
   render() {
@@ -54,7 +54,6 @@ class BareConversation extends Component {
 
   componentDidMount() {
     this.subscription = subscribe(
-      channel,
       p => this.onPresenceChange(p),
       m => this.onMessageReceived(m));
 
@@ -76,7 +75,7 @@ class BareConversation extends Component {
       this.props.stopTyping(this.props.currentUserId);
     }
 
-    publishTypingState(channel, this.props.currentUserId, typing);
+    publishTypingState(this.props.currentUserId, typing);
   }
 
   onMessageReceived(message) {
@@ -107,10 +106,9 @@ class BareConversation extends Component {
   }
 
   fetchHistory() {
-    const { props } = this;
-    history(channel).then(response =>
-      props.addHistory(response.messages, response.startTimeToken)
-    )
+    const {addHistory} = this.props;
+
+    history().then(response => addHistory(response.messages, response.startTimeToken));
   }
 }
 

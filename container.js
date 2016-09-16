@@ -38,7 +38,6 @@ class BareContainer extends Component {
 
     switch (connectionState) {
       case ConnectionState.Idle:
-        return null;
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
