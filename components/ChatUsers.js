@@ -8,6 +8,7 @@ import {
   TouchableHighlight,
   Text,
   View,
+  ScrollView,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -57,10 +58,12 @@ export class ChatUsers extends Component {
           </Text>
         </View>
         <View style={[styles.flxRow, styles.ml2]}>
-          {users.map(id =>
-            <View key={id} style={[styles.ml1, styles.w2, styles.h2, styles.rounded6, {overflow: 'hidden'}]}>
-              <User id={id} style={[styles.w2, styles.h2]} />
-            </View>)}
+          <ScrollView horizontal={true} >
+            {users.map(id =>
+              <View key={id} style={[styles.ml1, styles.w2, styles.h2, styles.rounded6, {overflow: 'hidden'}]}>
+                <User id={id} style={[styles.w2, styles.h2]} />
+              </View>)}
+          </ScrollView>
         </View>
       </View>
     );
