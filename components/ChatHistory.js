@@ -63,7 +63,7 @@ export class ChatHistory extends Component {
 
   render() {
     const { props, state, onScroll, onContentSizeChange } = this;
-    const source = this.historySource.cloneWithRows(props.history);
+    const source = this.historySource.cloneWithRows((props.history || []).filter(h => h.Who != null));
     return (
       <View style={[styles.flx2, styles.flxRow, styles.selfStretch]}>
         <ScrollView ref="scrollView"
