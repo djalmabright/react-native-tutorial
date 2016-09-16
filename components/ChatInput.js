@@ -23,25 +23,30 @@ const Fab = MKButton.plainFab()
 export class ChatInput extends Component {
   constructor() {
     super();
-    this.state = {
-      value: ''
-    };
+
+    this.state = {value: ''};
   }
 
-  onChangeText = (text) => {
+  onChangeText(text) {
     if (this.timeout != null) {
       clearTimeout(this.timeout);
     }
 
     const {setTypingState} = this.props;
 
-    this.timeout = setTimeout(() => setTypingState(false), 1500);
+    if (text == null || text.length === 0) {
+      setTypingState(false);
+    }
+    else {
+      this.timeout = setTimeout(() => setTypingState(false), 1500);
 
-    this.setState({ value: text });
-    setTypingState(true);
+      setTypingState(true);
+    }
+
+    this.setState({value: text});
   }
 
-  onSubmit = (e) => {
+  onSubmit(e) {
     const value = this.state.value;
     if (value.length === 0) {
       return;
@@ -59,8 +64,6 @@ export class ChatInput extends Component {
   }
 
   render() {
-    const {props, onSubmit, onChangeText} = this;
-
     const containerStyle = [
       styles.flx1,
       styles.flxCol,
@@ -79,6 +82,8 @@ export class ChatInput extends Component {
       {width: 220},
     ];
 
+    const {currentUserId} = this.props;
+
     return (
       <View style={containerStyle}>
         <View style={[styles.flxRow, styles.jcStart]}>
@@ -89,20 +94,20 @@ export class ChatInput extends Component {
             <TextInput ref="input"
               placeholder="Type your message" placeholderTextColor="#ccc"
               style={inputStyle}
-              onChangeText={onChangeText}
+              onChangeText={text => this.onChangeText(text)}
             />
           </View>
-          <Fab onPress={onSubmit}>
+          <Fab onPress={() => this.onSubmit()}>
             <Icon name="send" size={25} color="white" />
           </Fab>
         </View>
         <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, {width: 120}]}>
           <View style={[styles.rounded6, styles.w2, styles.h2, { overflow: 'hidden' }]}>
-            <User id={props.currentUserId} />
+            <User id={currentUserId} />
           </View>
           <View style={[styles.ml1]}>
             <Text style={[styles.black, styles.italics, styles.f6, {marginTop: 10, fontStyle: 'italic'}]}>
-              {props.currentUserId}
+              {currentUserId}
             </Text>
           </View>
         </View>
