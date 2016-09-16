@@ -12,10 +12,9 @@ import {
 import {connect} from 'react-redux';
 
 import {connectionActions} from './actions';
-import {ConnectionState} from './constants';
 import {AuthenticationService} from './services';
-
 import {Conversation} from './components/Conversation';
+import {ConnectionState, config} from './constants';
 
 import styles from './styles';
 
@@ -27,8 +26,10 @@ const mapStateToProps =
 
 const mapDispatchToProps =
   dispatch => ({
-    connect: authenticationToken =>
-      connectionActions.connect(authenticationToken)(dispatch),
+    connect:
+      authenticationToken => connectionActions.connect(authenticationToken)(dispatch),
+    failure:
+      error => dispatch(connectionActions.failure()),
   });
 
 class BareContainer extends Component {
@@ -48,6 +49,15 @@ class BareContainer extends Component {
         );
       case ConnectionState.Connected:
         return <Conversation />;
+      case ConnectionState.Failed:
+        return (
+          <View style={styles.m3}>
+            <Text>Failed to connect, reconnecting in 1s</Text>
+            <View style={styles.p1}>
+              <Text style={styles.stackTrace}>{failureTrace}</Text>
+            </View>
+          </View>
+        );
       default:
         throw new Error(`Unknown state: ${connectionState}`);
     }
@@ -59,10 +69,13 @@ class BareContainer extends Component {
     /// which we will extract through our url handler and begin the PubNub connect handshake.
     Linking.addEventListener('url',
       event => {
+        console.log('yo son i got', event);
         this.props.connect(AuthenticationService.getTokenFromUri(event.url));
       });
 
-    Linking.openURL('http://localhost:3000/login');
+    const loginUri = `${config.host}/login`;
+
+    Linking.openURL(loginUri).catch(error => this.props.failure(error));
   }
 
   onReconnect() {

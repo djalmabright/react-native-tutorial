@@ -17,7 +17,7 @@ app.use(passport.session());
 passport.use(new GithubStrategy({
     clientID: config.github.clientID,
     clientSecret: config.github.clientSecret,
-    callbackURL: config.host + '/callback',
+    callbackURL: `${config.host}/callback`,
   },
   (accessToken, refreshToken, profile, done) => {
     let user = profile;
@@ -27,32 +27,26 @@ passport.use(new GithubStrategy({
 ));
 
 passport.serializeUser((user, done) => {
-  storage.setItem('user_' + user.id, user);
+  storage.setItem(`user_${user.id}`, user);
   done(null, user.id)
 });
 
 passport.deserializeUser((id, done) =>
-  done(null, storage.getItem('user_' + user.id))
+  done(null, storage.getItem(`user_${user.id}`))
 );
 
-app.get('/login',
-  passport.authenticate('github'),
-  (req, res) => res.status(200).send()
-);
+app.get('/login', passport.authenticate('github'),
+  (req, res) => {
+    res.status(200).send();
+  });
 
 app.get('/callback',
   passport.authenticate(
     'github',
-    { successRedirect: 'reactchat://',
-      failureRedirect: '/login' }
-  ),
+    {failureRedirect: '/login'}),
   (req, res) => {
-    console.log(req);
-    cnsole.log(res);
-    res.redirect('/success');
-  }
-);
-
-app.get('/success', (req, res) => res.status(200).send());
+    console.log('redir', `reactchat://${req.user.accessToken}`);
+    res.redirect(`reactchat://${req.user.accessToken}`);
+  });
 
 app.listen(config.port, () => console.log('Listening on port ' + config.port));

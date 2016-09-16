@@ -24,6 +24,8 @@ export const connect = authenticationToken => {
 
     const pubnub = new PubNub(options);
 
+    // pubnub.auth(authenticationToken);
+
     const initialHandler = {
       status: statusEvent => {
         switch (statusEvent.category) {
