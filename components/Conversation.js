@@ -44,7 +44,7 @@ class BareConversation extends Component {
     return (
       <View style={containerStyle}>
         <ChatUsers users={users} />
-        <ChatHistory history={history} fetchHistory={this.fetchHistory.bind(this)} />
+        <ChatHistory ref="chatHistory" history={history} fetchHistory={this.fetchHistory.bind(this)} />
         <ChatUsersTyping users={typingUsers} />
         <ChatInput
           currentUserId={currentUserId}
@@ -86,6 +86,14 @@ class BareConversation extends Component {
 
   onMessageReceived(message) {
     this.props.addMessage(message.message);
+
+    // scroll down to new message
+    const scrollViewHeight = this.refs.chatHistory.state.scrollViewHeight;
+    this.refs.chatHistory.refs.scrollView.scrollTo({
+      x: 0,
+      y: scrollViewHeight,
+      animated: false,
+    });
   }
 
   onPresenceChange(presenceData) {

@@ -44,7 +44,11 @@ export class ChatHistory extends Component {
     super();
 
     this.historySource = new ListView.DataSource({rowHasChanged: (lhs, rhs) => lhs !== rhs});
-    this.scrollViewHeight = 0;
+
+    this.state = {
+      loaded: false,
+      scrollViewHeight: 0,
+    };
   }
 
   onScroll = (e) => {
@@ -54,13 +58,18 @@ export class ChatHistory extends Component {
   }
 
   onContentSizeChange = (width, height) => {
+    this.setState({ scrollViewHeight: height - 300 });
+
     // scroll to bottom on first load
-    if (this.scrollViewHeight === 0) {
-      this.scrollViewHeight = height;
+    if (!this.state.loaded) {
+      this.setState({ loaded: true });
       // do initial scroll only when we have to
       // scrollView takes up about 6 messages
       if (this.props.history.length >= 6) {
-        this.refs.scrollView.scrollTo({ x: 0, y: height, animated: false });
+        this.refs.scrollView.scrollTo({
+          x: 0,
+          y: this.state.scrollViewHeight,
+          animated: false });
       }
     }
   }
