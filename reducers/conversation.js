@@ -3,6 +3,7 @@ import {OrderedSet, List, fromJS} from 'immutable';
 import {
   ADD_USER,
   ADD_HISTORY,
+  ADD_MESSAGE,
   REMOVE_USER,
   START_TYPING,
   STOP_TYPING,
@@ -18,7 +19,7 @@ export const initialState = fromJS({
   /// Visible message history
   history: List(),
 
-  lastMessageTimestamp: null,
+  lastMessageTimestamp: 0,
 });
 
 export const conversationReducer = (state = initialState, action) => {
@@ -39,8 +40,13 @@ export const conversationReducer = (state = initialState, action) => {
 
     case ADD_HISTORY:
       return state
-        .update('history', (messages) => messages.unshift(...action.payload.messages))
+        .update('history', (messages) => messages.unshift(
+            ...action.payload.messages.map(msg => msg.entry)
+        ))
         .set('lastMessageTimestamp', action.payload.timestamp);
+
+    case ADD_MESSAGE:
+      return state.update('history', message => messages.push(action.payload));
 
     default:
       return state;

@@ -19,6 +19,7 @@ import {channel} from '../constants';
 import {
   history,
   publishTypingState,
+  publishMessage,
   subscribe,
 } from '../services/pubnub';
 
@@ -32,8 +33,8 @@ class BareConversation extends Component {
       users,
       typingUsers,
     } = this.props;
-
     const containerStyle = [
+
       styles.flx1,
       styles.flxCol,
       styles.selfStretch,
@@ -47,7 +48,7 @@ class BareConversation extends Component {
         <ChatInput
           currentUserId={currentUserId}
           setTypingState={typing => this.onTypingStateChanged(typing)}
-        />
+          publishMessage={this.publishMessage.bind(this)} />
       </View>
     );
   }
@@ -78,9 +79,6 @@ class BareConversation extends Component {
     publishTypingState(this.props.currentUserId, typing);
   }
 
-  onMessageReceived(message) {
-  }
-
   onPresenceChange(presenceData) {
     switch (presenceData.action) {
       case 'join':
@@ -106,9 +104,18 @@ class BareConversation extends Component {
   }
 
   fetchHistory() {
-    const {addHistory} = this.props;
+    const { props } = this;
+    history(channel, props.lastMessageTimestamp).then(response => {
+      // make sure we're not duplicating our existing history
+      if (response.messages.length > 0 &&
+          props.lastMessageTimeStamp !== response.startTimeToken) {
+        props.addHistory(response.messages, response.startTimeToken)
+      }
+    })
+  }
 
-    history().then(response => addHistory(response.messages, response.startTimeToken));
+  publishMessage(message) {
+    publishMessage(channel, message);
   }
 }
 

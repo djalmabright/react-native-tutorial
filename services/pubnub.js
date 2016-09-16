@@ -3,6 +3,7 @@ import PubNub from 'pubnub';
 import {
   channel,
   config,
+  messageCount,
 } from '../constants';
 
 let connection;
@@ -122,7 +123,7 @@ export const history = (startTime) =>
       pubnub.history({
         channel,
         start: startTime,
-        count: 15,
+        count: messageCount,
       },
       (status, response) => resolve(response))
     })
@@ -135,4 +136,11 @@ export const publishTypingState = (uuid, isTyping) =>
       channel,
       uuid,
       state: {isTyping},
+    }));
+
+export const publishMessage = (channel, message) =>
+  connect().then(({ pubnub }) =>
+    pubnub.publish({
+      channel,
+      message
     }));

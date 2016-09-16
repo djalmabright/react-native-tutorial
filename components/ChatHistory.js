@@ -10,11 +10,11 @@ import {
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {User} from './User';
+import {messageCount} from '../constants';
 
 import styles from '../styles';
 
-const renderMessage = (message) => {
-  const data = message.entry;
+const renderMessage = (data) => {
   const msgDate = new Date(data.When);
   const msgDateTime = msgDate.toLocaleDateString() + ' at ' + msgDate.toLocaleTimeString();
 
@@ -57,7 +57,11 @@ export class ChatHistory extends Component {
     // scroll to bottom on first load
     if (this.scrollViewHeight === 0) {
       this.scrollViewHeight = height;
-      this.refs.scrollView.scrollTo({ x: 0, y: height, animated: false });
+      // do initial scroll only when we have to
+      // scrollView takes up about 6 messages
+      if (this.props.history.length >= 6) {
+        this.refs.scrollView.scrollTo({ x: 0, y: height, animated: false });
+      }
     }
   }
 
@@ -69,7 +73,7 @@ export class ChatHistory extends Component {
     const source = this.historySource.cloneWithRows(props.history.filter(isValid));
 
     return (
-      <View style={[styles.flx2, styles.flxRow, styles.selfStretch]}>
+      <View style={[styles.flx1, styles.flxRow, styles.selfStretch]}>
         <ScrollView ref="scrollView"
           scrollEventThrottle={100}
           onScroll={onScroll}

@@ -21,8 +21,45 @@ const Fab = MKButton.plainFab()
   .build();
 
 export class ChatInput extends Component {
+  constructor() {
+    super();
+    this.state = {
+      value: ''
+    };
+  }
+
+  onChangeText = (text) => {
+    if (this.timeout != null) {
+      clearTimeout(this.timeout);
+    }
+
+    const {setTypingState} = this.props;
+
+    this.timeout = setTimeout(() => setTypingState(false), 1500);
+
+    this.setState({ value: text });
+    setTypingState(true);
+  }
+
+  onSubmit = (e) => {
+    const value = this.state.value;
+    if (value.length === 0) {
+      return;
+    }
+
+    const messageObj = {
+      Who: this.props.currentUserId,
+      What: value,
+      When: new Date().valueOf(),
+    };
+
+    this.props.publishMessage(messageObj);
+    this.setState({ value: '' });
+    this.refs.input.clear();
+  }
+
   render() {
-    const {currentUserId} = this.props;
+    const {props, onSubmit, onChangeText} = this;
 
     const containerStyle = [
       styles.flx1,
@@ -49,46 +86,28 @@ export class ChatInput extends Component {
             <Icon name="message" size={30} color="white" />
           </View>
           <View style={[styles.h3, styles.mh2, styles.borderBHl, { borderBottomColor: 'white' }]}>
-            <TextInput
-              placeholder="Type your message"
-              placeholderTextColor="#ccc"
+            <TextInput ref="input"
+              placeholder="Type your message" placeholderTextColor="#ccc"
               style={inputStyle}
-              onChange={text => this.onChange(text)}
+              onChangeText={onChangeText}
             />
           </View>
-          <Fab>
+          <Fab onPress={onSubmit}>
             <Icon name="send" size={25} color="white" />
           </Fab>
         </View>
         <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, {width: 120}]}>
           <View style={[styles.rounded6, styles.w2, styles.h2, { overflow: 'hidden' }]}>
-            <User id={currentUserId} />
+            <User id={props.currentUserId} />
           </View>
           <View style={[styles.ml1]}>
             <Text style={[styles.black, styles.italics, styles.f6, {marginTop: 10, fontStyle: 'italic'}]}>
-              {currentUserId}
+              {props.currentUserId}
             </Text>
           </View>
         </View>
       </View>
     );
-  }
-
-  onChange(text) {
-    if (this.timeout != null) {
-      clearTimeout(this.timeout);
-    }
-
-    const {setTypingState} = this.props;
-
-    if (text == null || text.length === 0) {
-      setTypingState(false);
-    }
-    else {
-      this.timeout = setTimeout(() => setTypingState(false), 1500);
-
-      setTypingState(true);
-    }
   }
 }
 
