@@ -68,7 +68,6 @@ class BareContainer extends Component {
     /// which we will extract through our url handler and begin the PubNub connect handshake.
     Linking.addEventListener('url',
       event => {
-        console.log('yo son i got', event);
         this.props.connect(AuthenticationService.getTokenFromUri(event.url));
       });
 

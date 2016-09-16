@@ -18,6 +18,7 @@ const renderMessage = (data) => {
   const msgDate = new Date(data.When);
   const msgDateTime = msgDate.toLocaleDateString() + ' at ' + msgDate.toLocaleTimeString();
 
+  debugger;
   return (
     <View style={[ styles.flx1, styles.flxRow, styles.p1, styles.borderBHl, { borderColor: '#aaa' }]} key={data.When}>
       <View style={[styles.rounded6, styles.w2, styles.h2, styles.mt1,{ overflow: 'hidden' }]}>
@@ -68,9 +69,9 @@ export class ChatHistory extends Component {
   render() {
     const { props, state, onScroll, onContentSizeChange } = this;
 
-    const isValid = h => h.entry != null && h.entry.Who != null;
+    const rows = props.history.filter(h => h.Who != null);
 
-    const source = this.historySource.cloneWithRows(props.history.filter(isValid));
+    const source = this.historySource.cloneWithRows(rows);
 
     return (
       <View style={[styles.flx1, styles.flxRow, styles.selfStretch]}>

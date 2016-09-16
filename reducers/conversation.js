@@ -40,13 +40,11 @@ export const conversationReducer = (state = initialState, action) => {
 
     case ADD_HISTORY:
       return state
-        .update('history', (messages) => messages.unshift(
-            ...action.payload.messages.map(msg => msg.entry)
-        ))
+        .update('history', (messages) => messages.unshift(...action.payload.messages.map(msg => msg.entry)))
         .set('lastMessageTimestamp', action.payload.timestamp);
 
     case ADD_MESSAGE:
-      return state.update('history', message => messages.push(action.payload));
+      return state.update('history', messages => messages.push(action.payload));
 
     default:
       return state;

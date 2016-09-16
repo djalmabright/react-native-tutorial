@@ -101,7 +101,7 @@ export const subscribe = (presenceHandler, messageHandler) => {
 
   connect().then(({ pubnub }) => {
     pubnub.subscribe({
-      channel,
+      channels: [channel],
       withPresence: true,
     })
   });
@@ -125,7 +125,14 @@ export const history = (startTime) =>
         start: startTime,
         count: messageCount,
       },
-      (status, response) => resolve(response))
+      (status, response) => {
+        if (status.error) {
+          reject(status.category);
+        }
+        else {
+          resolve(response);
+        }
+      });
     })
     .catch(reject);
   });
