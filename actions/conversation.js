@@ -23,7 +23,7 @@ export const conversationActions = {
     return {type: STOP_TYPING, payload: {userId}};
   },
 
-  addHistory(history, timestamp) {
-    return {type: ADD_HISTORY, payload: {history, timestamp}};
+  addHistory(messages, timestamp) {
+    return {type: ADD_HISTORY, payload: {messages, timestamp}};
   },
 };

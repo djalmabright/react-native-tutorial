@@ -61,7 +61,7 @@ export const connect = authenticationToken => {
 
     pubnub.addListener(initialHandler);
 
-    return handshake(pubnub).then(() => resolve(uuid)).catch(reject);
+    return handshake(pubnub).then(() => resolve({uuid, pubnub})).catch(reject);
   });
 
   return connection;
@@ -80,9 +80,9 @@ const handshake = pubnub =>
   });
 
 export const publish = msg =>
-  connect().then(handle => {
+  connect().then(({ pubnub }) => {
     return new Promise(resolve => {
-      handle.publish(msg,
+      pubnub.publish(msg,
         (status, response) => {
           resolve(response);
         });
@@ -94,8 +94,8 @@ export const subscribe = (channel, presenceHandler, messageHandler) => {
 
   messageSubscriptons.add(messageHandler);
 
-  connect().then(handle => {
-    handle.subscribe({
+  connect().then(({ pubnub }) => {
+    pubnub.subscribe({
       channel: channel,
       withPresence: true,
     })
@@ -114,22 +114,21 @@ export const subscribe = (channel, presenceHandler, messageHandler) => {
 
 export const history = (channel, startTime) =>
   new Promise((resolve, reject) => {
-    connect().then(handle =>
-      handle.history(
-        response => resolve(response),
+    connect().then(({ pubnub }) => {
+      pubnub.history({
         channel,
-        null,
-        null,
-        null,
-        true,
-        true,
-        error => reject(error)))
-      .catch(reject);
+        start: startTime,
+        count: 15,
+      },
+      (status, response) => resolve(response),
+      )
+    })
+    .catch(reject);
   });
 
 export const publishTypingState = (channel, uuid, isTyping) =>
-  connect().then(handle =>
-    handle.state({
+  connect().then(({ pubnub }) =>
+    pubnub.state({
       channel,
       uuid,
       state: {isTyping},

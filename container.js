@@ -89,7 +89,7 @@ class BareContainer extends Component {
         this.props.connect(AuthenticationService.getTokenFromUri(event.url));
       });
 
-    Linking.openURL('http://localhost:8080/login');
+    Linking.openURL('http://localhost:3000/login');
   }
 
   onReconnect() {

@@ -107,9 +107,10 @@ class BareConversation extends Component {
   }
 
   fetchHistory() {
-    history(channel).then(({status, response}) => {
-      debugger;
-    })
+    const { props } = this;
+    history(channel).then(response =>
+      props.addHistory(response.messages, response.startTimeToken)
+    )
   }
 }
 
@@ -118,7 +119,7 @@ BareConversation.propTypes = {
   users: PropTypes.array,
   typingUsers: PropTypes.array,
   history: PropTypes.array,
-  lastMessageTimestamp: PropTypes.string,
+  lastMessageTimestamp: PropTypes.number,
 };
 
 const mapStateToProps = state =>

@@ -5,8 +5,8 @@ export const commonConfiguration = {
 };
 
 export const config = {
-  host: 'http://localhost:8080',
-  port: 8080,
+  host: 'http://localhost:3000',
+  port: 3000,
   client: commonConfiguration,
   server: Object.assign({}, commonConfiguration, {
     secretKey: '',

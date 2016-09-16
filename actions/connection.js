@@ -10,8 +10,8 @@ export const connectionActions = {
       dispatch({type: CONNECTING});
 
       connect(authenticationToken)
-        .then(userId => {
-          dispatch({type: CONNECTED, payload: {userId}});
+        .then(({ uuid }) => {
+          dispatch({type: CONNECTED, payload: {userId: uuid}});
         })
         .catch(error => {
           dispatch({type: DISCONNECTED, payload: {error}});

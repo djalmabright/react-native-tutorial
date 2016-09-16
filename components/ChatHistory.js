@@ -4,16 +4,75 @@ import {
   View,
   Text,
   ScrollView,
+  ListView,
+  Dimensions,
 } from 'react-native';
+
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {User} from './User';
 
 import styles from '../styles';
 
+const renderMessage = (message) => {
+  const data = message.entry;
+  const msgDate = new Date(data.When);
+  const msgDateTime = msgDate.toLocaleDateString() + ' at ' + msgDate.toLocaleTimeString();
+
+  return (
+    <View style={[ styles.flx1, styles.flxRow, styles.p1, styles.borderBHl, { borderColor: '#aaa' }]} key={data.When}>
+      <View style={[styles.rounded6, styles.w2, styles.h2, styles.mt1,{ overflow: 'hidden' }]}>
+        <User id={data.Who.toString()}/>
+      </View>
+      <View style={[ styles.flxCol, styles.ml2 ]}>
+        <View>
+          <Text>Anonymous robot #{ data.Who }</Text>
+        </View>
+        <View style={[ styles.flxRow ]}>
+          <Icon name="alarm" size={14} />
+          <Text style={[ styles.f6, { marginLeft: 3 } ]}>{ msgDateTime }</Text>
+        </View>
+        <View style={[ styles.mt1 ]}>
+          <Text>{ data.What }</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 export class ChatHistory extends Component {
+  constructor() {
+    super();
+
+    this.historySource = new ListView.DataSource({rowHasChanged: (lhs, rhs) => lhs !== rhs});
+    this.scrollViewHeight = 0;
+  }
+
+  onScroll = (e) => {
+    if (e.nativeEvent.contentOffset.y === 0) {
+      this.props.fetchHistory();
+    }
+  }
+
+  onContentSizeChange = (width, height) => {
+    // scroll to bottom on first load
+    if (this.scrollViewHeight === 0) {
+      this.scrollViewHeight = height;
+      this.refs.scrollView.scrollTo({ x: 0, y: height, animated: false });
+    }
+  }
+
   render() {
+    const { props, state, onScroll, onContentSizeChange } = this;
+    const source = this.historySource.cloneWithRows(props.history);
     return (
-      <View style={[styles.flx2, styles.flxRow, styles.selfStretch, styles.p2]}>
-        <ScrollView>
-          <Text>Chat history here</Text>
+      <View style={[styles.flx2, styles.flxRow, styles.selfStretch]}>
+        <ScrollView ref="scrollView"
+          scrollEventThrottle={100}
+          onScroll={onScroll}
+          onContentSizeChange={onContentSizeChange}>
+          <ListView enableEmptySections
+            dataSource={source}
+            renderRow={renderMessage}/>
         </ScrollView>
       </View>
     );
