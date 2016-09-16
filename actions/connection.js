@@ -15,6 +15,9 @@ export const connectionActions = {
         })
         .catch(error => {
           dispatch({type: DISCONNECTED, payload: {error}});
+
+          // Attempt to reconnect on a timer
+          setTimeout(() => connectionActions.connect(authenticationToken)(dispatch), 1500);
         });
     };
   },

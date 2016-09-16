@@ -48,33 +48,6 @@ class BareContainer extends Component {
         );
       case ConnectionState.Connected:
         return <Conversation />;
-      case ConnectionState.Failed:
-        return (
-          <View>
-            <Modal
-                animationType={'slide'}
-                transparent={false}
-                visible={true}
-                style={styles.center}
-                onRequestClose={this.onReconnect.bind(this)}>
-              <View style={styles.mt1}>
-                <View>
-                  <Text>
-                    Failed to connect to the PubNub service
-                  </Text>
-                  <View style={[styles.mt3, styles.mb3]}>
-                    <Text style={styles.stackTrace}>
-                      {failureTrace}
-                    </Text>
-                  </View>
-                  <TouchableHighlight onPress={this.onReconnect.bind(this)}>
-                    <Text style={styles.royalBlue}>Reconnect</Text>
-                  </TouchableHighlight>
-                </View>
-              </View>
-            </Modal>
-          </View>
-        );
       default:
         throw new Error(`Unknown state: ${connectionState}`);
     }

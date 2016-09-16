@@ -33,7 +33,7 @@ export const connect = authenticationToken => {
             break;
           case 'PNDisconnectedCategory':
           case 'PNNetworkDownCategory':
-            setTimeout(() => connect(), 1000); // reconnect in 1s
+            reject(new Error('Received a network-down message'));
             break;
           default:
             return;
@@ -50,6 +50,7 @@ export const connect = authenticationToken => {
           },
           status: statusEvent => {
             switch (statusEvent.category) {
+              case 'PNDisconnectedCategory':
               case 'PNNetworkDownCategory':
                 connect(); // reconnect
                 break;
