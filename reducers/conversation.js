@@ -1,7 +1,7 @@
 import {OrderedSet, List, fromJS} from 'immutable';
 
 import {
-  ADD_USER,
+  ADD_USERS,
   ADD_HISTORY,
   ADD_MESSAGE,
   REMOVE_USER,
@@ -26,8 +26,8 @@ export const conversationReducer = (state = initialState, action) => {
   const {userId} = (action.payload || {});
 
   switch (action.type) {
-    case ADD_USER:
-      return state.update('users', users => users.add(userId));
+    case ADD_USERS:
+      return state.set('users', state.get('users').concat(action.payload.identifiers));
 
     case REMOVE_USER:
       return state.update('users', users => users.delete(userId));

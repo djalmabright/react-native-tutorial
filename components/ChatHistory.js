@@ -18,7 +18,6 @@ const renderMessage = (data) => {
   const msgDate = new Date(data.When);
   const msgDateTime = msgDate.toLocaleDateString() + ' at ' + msgDate.toLocaleTimeString();
 
-  debugger;
   return (
     <View style={[ styles.flx1, styles.flxRow, styles.p1, styles.borderBHl, { borderColor: '#aaa' }]} key={data.When}>
       <View style={[styles.rounded6, styles.w2, styles.h2, styles.mt1,{ overflow: 'hidden' }]}>

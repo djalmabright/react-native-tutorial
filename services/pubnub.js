@@ -103,7 +103,7 @@ export const subscribe = (presenceHandler, messageHandler) => {
     pubnub.subscribe({
       channels: [channel],
       withPresence: true,
-    })
+    });
   });
 
   return {
@@ -116,6 +116,27 @@ export const subscribe = (presenceHandler, messageHandler) => {
     },
   };
 };
+
+export const participants = () =>
+  new Promise((resolve, reject) => {
+    connect().then(({pubnub}) => {
+      pubnub.hereNow({
+          channels: [channel],
+          channelGroups: [],
+          includeUUIDs: true,
+          includeState: true,
+      },
+      (status, response) => {
+        if (status.error) {
+          reject(status.category);
+        }
+        else {
+          resolve(response.channels[channel].occupants);
+        }
+      });
+    })
+    .catch(reject);
+  });
 
 export const history = (startTime) =>
   new Promise((resolve, reject) => {

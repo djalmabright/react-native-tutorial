@@ -1,6 +1,6 @@
 import {connect} from '../services/pubnub';
 
-export const ADD_USER = 'ADD_USER';
+export const ADD_USERS = 'ADD_USERS';
 export const ADD_HISTORY = 'ADD_HISTORY';
 export const ADD_MESSAGE = 'ADD_MESSAGE';
 export const REMOVE_USER = 'REMOVE_USER';
@@ -8,8 +8,8 @@ export const START_TYPING = 'START_TYPING';
 export const STOP_TYPING = 'STOP_TYPING';
 
 export const conversationActions = {
-  addUser(userId) {
-    return {type: ADD_USER, payload: {userId}};
+  addUsers(identifiers) {
+    return {type: ADD_USERS, payload: {identifiers}};
   },
 
   removeUser(userId) {
