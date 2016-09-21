@@ -44,12 +44,12 @@ class BareConversation extends Component {
     return (
       <View style={containerStyle}>
         <ChatUsers users={users} />
-        <ChatHistory ref="chatHistory" history={history} fetchHistory={this.fetchHistory.bind(this)} />
+        <ChatHistory ref="chatHistory" history={history} fetchHistory={() => this.fetchHistory()} />
         <ChatUsersTyping users={typingUsers} />
         <ChatInput
           currentUserId={currentUserId}
           setTypingState={typing => this.onTypingStateChanged(typing)}
-          publishMessage={this.publishMessage.bind(this)} />
+          publishMessage={message => this.onPublishMessage(message)} />
       </View>
     );
   }
@@ -71,6 +71,18 @@ class BareConversation extends Component {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+  }
+
+  fetchHistory() {
+    const {lastMessageTimestamp, addHistory} = this.props;
+
+    history(lastMessageTimestamp).then(response => {
+      // make sure we're not duplicating our existing history
+      if (response.messages.length > 0 &&
+          lastMessageTimestamp !== response.startTimeToken) {
+        addHistory(response.messages, response.startTimeToken)
+      }
+    })
   }
 
   onTypingStateChanged(typing) {
@@ -120,20 +132,14 @@ class BareConversation extends Component {
     }
   }
 
-  fetchHistory() {
-    const {lastMessageTimestamp, addHistory} = this.props;
-
-    history(lastMessageTimestamp).then(response => {
-      // make sure we're not duplicating our existing history
-      if (response.messages.length > 0 &&
-          lastMessageTimestamp !== response.startTimeToken) {
-        addHistory(response.messages, response.startTimeToken)
-      }
-    })
-  }
-
-  publishMessage(message) {
-    publishMessage(channel, message);
+  onPublishMessage(message) {
+    publishMessage(channel, message)
+      .then(() => {
+        this.props.addMessage(message);
+      })
+      .catch(error => {
+        console.error('Failed to publish message:', error);
+      });
   }
 }
 

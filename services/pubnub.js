@@ -167,8 +167,18 @@ export const publishTypingState = (uuid, isTyping) =>
     }));
 
 export const publishMessage = (channel, message) =>
-  connect().then(({ pubnub }) =>
-    pubnub.publish({
-      channel,
-      message
-    }));
+  new Promise((resolve, reject) => {
+    connect().then(({ pubnub }) =>
+      pubnub.publish({
+        channel,
+        message,
+      },
+      (status, response) => {
+        if (status.error) {
+          reject(status.category);
+        }
+        else {
+          resolve();
+        }
+      }));
+  });

@@ -24,7 +24,7 @@ export class ChatInput extends Component {
   constructor() {
     super();
 
-    this.state = {value: ''};
+    this.reset();
   }
 
   onChangeText(text) {
@@ -59,8 +59,8 @@ export class ChatInput extends Component {
     };
 
     this.props.publishMessage(messageObj);
-    this.setState({ value: '' });
-    this.refs.input.clear();
+
+    this.reset();
   }
 
   render() {
@@ -113,6 +113,20 @@ export class ChatInput extends Component {
         </View>
       </View>
     );
+  }
+
+  reset() {
+    const initialState = {value: new String().valueOf()};
+    if (this.state) {
+      this.setState(initialState);
+    }
+    else {
+      this.state = initialState;
+    }
+
+    if (this.refs.input) {
+      this.refs.input.clear();
+    }
   }
 }
 

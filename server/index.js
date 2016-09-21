@@ -9,7 +9,10 @@ const passport = require('passport');
 const GithubStrategy = require('passport-github2').Strategy;
 const PubNub = require('pubnub');
 
-const {channel, config} = require('../constants');
+const {channel, commonConfiguration} = require('../constants/configuration-base');
+
+const {config: android} = require('../constants/configuration.android');
+const {config: ios} = require('../constants/configuration.ios');
 
 const storage = require('node-persist');
 
@@ -20,8 +23,24 @@ const app = express();
 app.use(passport.initialize());
 app.use(passport.session());
 
+let config;
+switch (process.argv[2]) {
+  case 'android':
+    config = android;
+    break;
+  case 'ios':
+    config = ios;
+    break;
+  default:
+    console.error('You must provide a command-line argument that specifies whether running for Android or iOS');
+    console.error();
+    console.error('Usage: npm run serve [android|ios]');
+    process.exit(1);
+    break; // notreachable
+}
+
 const pubnubHandle = new PubNub(
-  Object.assign({}, config.server, {
+  Object.assign({}, commonConfiguration, {
     error: error => {
       console.error('Failed to initialize PubNub:', error);
     }
@@ -83,4 +102,4 @@ app.get('/callback',
     res.redirect(`reactchat://${req.user.accessToken}`);
   });
 
-app.listen(config.port, () => console.log(`Listening on port ${config.port}`));
+app.listen(config.port, '0.0.0.0', () => console.log(`Listening on port ${config.port}`));
