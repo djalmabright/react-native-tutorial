@@ -11,7 +11,7 @@ import {MKButton} from 'react-native-material-kit';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import {User} from './User';
+import User from './User';
 
 import styles from '../styles';
 
@@ -20,7 +20,7 @@ const Fab = MKButton.plainFab()
   .withStyle([ styles.w3, styles.h3, styles.rounded, styles.border0 ])
   .build();
 
-export class ChatInput extends Component {
+export default class ChatInput extends Component {
   constructor() {
     super();
 
@@ -53,7 +53,7 @@ export class ChatInput extends Component {
     }
 
     const messageObj = {
-      Who: this.props.currentUserId,
+      Who: this.props.user,
       What: value,
       When: new Date().valueOf(),
     };
@@ -82,7 +82,7 @@ export class ChatInput extends Component {
       {width: 220},
     ];
 
-    const {currentUserId} = this.props;
+    const {user} = this.props;
 
     return (
       <View style={containerStyle}>
@@ -101,13 +101,11 @@ export class ChatInput extends Component {
             <Icon name="send" size={25} color="white" />
           </Fab>
         </View>
-        <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, {width: 120}]}>
-          <View style={[styles.rounded6, styles.w2, styles.h2, { overflow: 'hidden' }]}>
-            <User id={currentUserId} />
-          </View>
+        <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, {width: 130}]}>
+          <User uri={user.avatar_url} size={32} />
           <View style={[styles.ml1]}>
-            <Text style={[styles.black, styles.italics, styles.f6, {marginTop: 10, fontStyle: 'italic'}]}>
-              {currentUserId}
+            <Text style={[styles.black, styles.italics, styles.f6, {marginTop: 8, fontStyle: 'italic'}]}>
+              {user.login}
             </Text>
           </View>
         </View>
@@ -131,7 +129,7 @@ export class ChatInput extends Component {
 }
 
 ChatInput.propTypes = {
-  currentUserId: PropTypes.string,
+  user: PropTypes.object,
   sendMessage: PropTypes.func,
   setTypingState: PropTypes.func,
 };

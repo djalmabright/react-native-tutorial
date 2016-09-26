@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 
 import {
   ActivityIndicator,
@@ -12,9 +12,11 @@ import {
 import {connect} from 'react-redux';
 
 import {connectionActions} from './actions';
-import {AuthenticationService} from './services';
-import {Conversation} from './components/Conversation';
+import {AuthenticationService, api} from './services';
 import {ConnectionState, config} from './constants';
+
+import Conversation from './components/Conversation';
+import ChatLogin from './components/ChatLogin';
 
 import styles from './styles';
 
@@ -32,12 +34,13 @@ const mapDispatchToProps =
       error => dispatch(connectionActions.failure()),
   });
 
-class BareContainer extends Component {
+class Container extends Component {
   render() {
     const {connectionState, failureTrace} = this.props;
 
     switch (connectionState) {
       case ConnectionState.Idle:
+        return (<ChatLogin onSubmit={this.login}/>);
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
@@ -62,13 +65,14 @@ class BareContainer extends Component {
     }
   }
 
-  componentDidMount() {
-    /// This will open up a browser instance that will go through the GitHub login process
-    /// and when it is finished, it will bounce back to reactchat://authenticationToken,
-    /// which we will extract through our url handler and begin the PubNub connect handshake.
+  login = () => {
+    // This will open up a browser instance that will go through the GitHub login process
+    // and when it is finished, it will bounce back to reactchat://authenticationToken,
+    // which we will extract through our url handler and begin the PubNub connect handshake.
     Linking.addEventListener('url',
       event => {
-        this.props.connect(AuthenticationService.getTokenFromUri(event.url));
+        const accessToken = AuthenticationService.getTokenFromUri(event.url);
+        this.props.connect(accessToken);
       });
 
     const loginUri = `${config.host}/login`;
@@ -81,4 +85,9 @@ class BareContainer extends Component {
   }
 }
 
-export const Container = connect(mapStateToProps, mapDispatchToProps)(BareContainer);
+Container.PropTypes = {
+  connectionState: PropTypes.object,
+  failureTrace: PropTypes.object,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Container);

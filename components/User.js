@@ -1,26 +1,24 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 
-import {Image} from 'react-native';
+import {View, Image} from 'react-native';
 
-import styles from '../styles';
+import s from '../styles';
 
-export class User extends Component {
+export default class User extends Component {
   render() {
-    const {id} = this.props;
-
-    const {robotSize} = styles;
-
-    const dimensions = `${robotSize}x${robotSize}`;
+    const {uri, size} = this.props;
 
     return (
-      <Image
-        style={{width: robotSize, height: robotSize}}
-        source={{uri: `https://robohash.org/${id}?set=set2&bgset=bg2&size=${dimensions}`}}
-      />
+      <View style={[s.rounded6, { width: size, height: size, overflow: 'hidden' }]}>
+        <Image
+          style={{width: size, height: size}}
+          source={{uri}} />
+      </View>
     );
   }
 }
 
 User.propTypes = {
-  id: React.PropTypes.string,
+  uri: PropTypes.string,
+  width: PropTypes.number,
 };

@@ -1,15 +1,18 @@
 export const channel = 'ReactChat';
 
 export const commonConfiguration = {
-  publishKey: 'pub-c-199f8cfb-5dd3-470f-baa7-d6cb52929ca4',
-  subscribeKey: 'sub-c-d2a5720a-1d1a-11e6-8b91-02ee2ddab7fe',
+  publishKey: 'pub-c-52fbe46d-e262-4034-91ae-c9495b7550e6',
+  subscribeKey: 'sub-c-25ff9f44-7f85-11e6-8a0d-0619f8945a4f',
   ssl: false,
 };
 
 const config = {
   port: 3000,
   client: commonConfiguration,
-  server: Object.assign({}, commonConfiguration),
+  server: Object.assign({
+    secretKey: 'sec-c-ZjZkMzJiYzgtMTdhNC00MmZjLWIxNDEtMDVlNTkxZTQyOTkz',
+    authKey: 'server-auth',
+  }, commonConfiguration),
   github: {},
 };
 

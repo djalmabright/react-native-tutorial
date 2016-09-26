@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {User} from './User';
+import User from './User';
 import {messageCount} from '../constants';
 
 import styles from '../styles';
@@ -20,12 +20,12 @@ const renderMessage = (data) => {
 
   return (
     <View style={[ styles.flx1, styles.flxRow, styles.p1, styles.borderBHl, { borderColor: '#aaa' }]} key={data.When}>
-      <View style={[styles.rounded6, styles.w2, styles.h2, styles.mt1,{ overflow: 'hidden' }]}>
-        <User id={data.Who.toString()}/>
+      <View style={[styles.mt1]}>
+        <User uri={data.Who.avatar_url} size={32} />
       </View>
       <View style={[ styles.flxCol, styles.ml2 ]}>
         <View>
-          <Text>Anonymous robot #{ data.Who }</Text>
+          <Text>{ data.Who.login }</Text>
         </View>
         <View style={[ styles.flxRow ]}>
           <Icon name="alarm" size={14} />
@@ -39,14 +39,13 @@ const renderMessage = (data) => {
   );
 };
 
-export class ChatHistory extends Component {
+export default class ChatHistory extends Component {
   constructor() {
     super();
 
     this.historySource = new ListView.DataSource({rowHasChanged: (lhs, rhs) => lhs !== rhs});
 
     this.state = {
-      loaded: false,
       scrollViewHeight: 0,
     };
   }
@@ -58,26 +57,36 @@ export class ChatHistory extends Component {
   }
 
   onContentSizeChange = (width, height) => {
-    this.setState({ scrollViewHeight: height - 300 });
+    if (height > 0) {
+      this.setState({ scrollViewHeight: height - 380 });
+    }
+  }
 
-    // scroll to bottom on first load
-    if (!this.state.loaded) {
-      this.setState({ loaded: true });
-      // do initial scroll only when we have to
-      // scrollView takes up about 6 messages
-      if (this.props.history.length >= 6) {
-        this.refs.scrollView.scrollTo({
-          x: 0,
-          y: this.state.scrollViewHeight,
-          animated: false });
-      }
+  scrollToBottom = () => {
+    // scroll only when we should
+    // scrollView takes up about 7 messages,
+    // and we need a height that makes sense
+    if (this.props.history.length >= 7) {
+      const scrollViewHeight = this.state.scrollViewHeight;
+      this.refs.scrollView.scrollTo({
+        x: 0,
+        y: scrollViewHeight,
+        animated: false,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.history.length === 0 &&
+      this.props.history.length > prevProps.history.length) {
+      this.scrollToBottom();
     }
   }
 
   render() {
     const { props, state, onScroll, onContentSizeChange } = this;
 
-    const rows = props.history.filter(h => h.Who != null);
+    const rows = props.history.filter(h => h.Who.login != null);
 
     const source = this.historySource.cloneWithRows(rows);
 

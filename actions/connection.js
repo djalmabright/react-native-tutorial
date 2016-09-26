@@ -1,17 +1,29 @@
-import {connect} from '../services/pubnub';
+import * as pubnubService from '../services/pubnub';
+import {api} from '../services';
 
 export const CONNECTING = 'CONNECT';
 export const CONNECTED = 'CONNECTED';
 export const DISCONNECTED = 'DISCONNECTED';
+export const STORE_FRIENDS = 'STORE_FRIENDS';
 
 export const connectionActions = {
   connect(authenticationToken) {
     return dispatch => {
       dispatch({type: CONNECTING});
 
-      connect(authenticationToken)
-        .then(({ uuid }) => {
-          dispatch({type: CONNECTED, payload: {userId: uuid}});
+      let user;
+      api.getUser(authenticationToken)
+        .then(res => {
+          user = res;
+          // use github id as pubnub uuid
+          return pubnubService.connect(authenticationToken, user.id)
+        })
+        .then(() => {
+          dispatch({type: CONNECTED, payload: user});
+          return api.getFriends(authenticationToken)
+        })
+        .then(friends => {
+          dispatch({type: STORE_FRIENDS, payload: friends})
         })
         .catch(error => {
           dispatch({type: DISCONNECTED, payload: {error}});
@@ -25,9 +37,8 @@ export const connectionActions = {
   },
 
   disconnect() {
-    return dispatch => {
-      disconnect().then(() => dispatch({type: DISCONNECTED}));
-    };
+    return dispatch => pubnubService.disconnect()
+      .then(() => dispatch({type: DISCONNECTED, payload: {}}));
   },
 
   failure(error) {

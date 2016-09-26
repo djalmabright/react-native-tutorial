@@ -19,10 +19,7 @@ export const connectionReducer = (state = initialState, action) => {
       return state.merge({state: ConnectionState.Connecting});
 
     case CONNECTED:
-      return state.merge({
-        state: ConnectionState.Connected,
-        currentUserId: action.payload.userId,
-      });
+      return state.merge({ state: ConnectionState.Connected });
 
     case DISCONNECTED:
       if (action.payload.error) {

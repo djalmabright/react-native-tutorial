@@ -1,27 +1,26 @@
+import {Set} from 'immutable';
 import PubNub from 'pubnub';
 
 import {
-  channel,
+  // channel,
   config,
   messageCount,
 } from '../constants';
 
 let connection;
 
-const presenceSubscriptions = new Set();
+let presenceSubscriptions = Set();
 
-const messageSubscriptons = new Set();
+let messageSubscriptons = Set();
 
 const identifier = () => Math.random().toString(10).slice(12);
 
-export const connect = authenticationToken => {
+export const connect = (authenticationToken, uuid) => {
   if (connection) {
     return connection;
   }
 
   connection = new Promise((resolve, reject) => {
-    const uuid = identifier();
-
     const options = Object.assign({}, config.client, {uuid});
 
     const pubnub = new PubNub(options);
@@ -72,6 +71,9 @@ export const connect = authenticationToken => {
   return connection;
 };
 
+export const disconnect = () =>
+  connect().then(({ pubnub }) => pubnub.stop());
+
 const handshake = pubnub =>
   new Promise((resolve, reject) => {
     pubnub.time(status => {
@@ -84,20 +86,9 @@ const handshake = pubnub =>
     });
   });
 
-export const publish = msg =>
-  connect().then(({ pubnub }) => {
-    return new Promise(resolve => {
-      pubnub.publish(msg,
-        (status, response) => {
-          resolve(response);
-        });
-    });
-  });
-
-export const subscribe = (presenceHandler, messageHandler) => {
-  presenceSubscriptions.add(presenceHandler);
-
-  messageSubscriptons.add(messageHandler);
+export const subscribe = (channel, presenceHandler, messageHandler) => {
+  presenceSubscriptions = presenceSubscriptions.add(presenceHandler);
+  messageSubscriptons = messageSubscriptons.add(messageHandler);
 
   connect().then(({ pubnub }) => {
     pubnub.subscribe({
@@ -108,16 +99,15 @@ export const subscribe = (presenceHandler, messageHandler) => {
 
   return {
     unsubscribe: () => {
-      presenceSubscriptions.delete(presenceHandler);
-
-      messageSubscriptons.delete(messageHandler);
+      presenceSubscriptions = presenceSubscriptions.delete(presenceHandler);
+      messageSubscriptons = messageSubscriptons.delete(messageHandler);
 
       return connect().then(handle => handle.unsubscribe({channel}));
     },
   };
 };
 
-export const participants = () =>
+export const participants = (channel) =>
   new Promise((resolve, reject) => {
     connect().then(({pubnub}) => {
       pubnub.hereNow({
@@ -138,7 +128,7 @@ export const participants = () =>
     .catch(reject);
   });
 
-export const history = (startTime) =>
+export const history = (channel, startTime) =>
   new Promise((resolve, reject) => {
     connect().then(({ pubnub }) => {
       pubnub.history({
@@ -158,7 +148,7 @@ export const history = (startTime) =>
     .catch(reject);
   });
 
-export const publishTypingState = (uuid, isTyping) =>
+export const publishTypingState = (channel, uuid, isTyping) =>
   connect().then(({ pubnub }) =>
     pubnub.state({
       channel,

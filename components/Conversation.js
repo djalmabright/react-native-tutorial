@@ -5,125 +5,189 @@ import {connect} from 'react-redux';
 import {
   View,
   Text,
+  Animated,
+  Easing,
+  Dimensions,
 } from 'react-native';
 
-import {ChatHistory} from './ChatHistory';
-import {ChatInput} from './ChatInput';
-import {ChatUsers} from './ChatUsers';
-import {ChatUsersTyping} from './ChatUsersTyping';
+import ChatMenu from './ChatMenu';
+import ChatHistory from './ChatHistory';
+import ChatInput from './ChatInput';
+import ChatHeader from './ChatHeader';
+import ChatUsersTyping from './ChatUsersTyping';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import {conversationActions} from '../actions';
+import {conversationActions, connectionActions} from '../actions';
 
 import {channel} from '../constants';
 
-import {
-  history,
-  participants,
-  publishTypingState,
-  publishMessage,
-  subscribe,
-} from '../services/pubnub';
+import * as pubnubService from '../services/pubnub';
 
-import styles from '../styles';
+import s from '../styles';
 
 class BareConversation extends Component {
-  render() {
-    const {
-      currentUserId,
-      history,
-      users,
-      typingUsers,
-    } = this.props;
-    const containerStyle = [
+  constructor() {
+    super();
+    this.state = {
+      subscription: null,
+      menuOpen: false,
+      viewPosition: new Animated.Value(0),
+    };
+  }
 
-      styles.flx1,
-      styles.flxCol,
-      styles.selfStretch,
-    ];
+  render() {
+    const {props} = this;
+
+    const absStretch = {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    };
+
+    // can't use array for Animated.View
+    const containerStyle = {
+      ...absStretch,
+      backgroundColor: 'white',
+      transform: [{ translateX: this.state.viewPosition }],
+    };
 
     return (
-      <View style={containerStyle}>
-        <ChatUsers users={users} />
-        <ChatHistory ref="chatHistory" history={history} fetchHistory={() => this.fetchHistory()} />
-        <ChatUsersTyping users={typingUsers} />
-        <ChatInput
-          currentUserId={currentUserId}
-          setTypingState={typing => this.onTypingStateChanged(typing)}
-          publishMessage={message => this.onPublishMessage(message)} />
+      <View style={[s.flx1, s.flxCol, s.selfStretch]}>
+        <ChatMenu style={absStretch}
+          channels={props.channels}
+          friends={props.friends}
+          signOut={props.disconnect}
+          selectChannel={(id) => {
+            props.selectChannel('open', id );
+            this.onMenuClick();
+          }}
+          selectFriend={(id) => {
+            props.selectChannel('direct', id);
+            this.onMenuClick();
+          }}/>
+        <Animated.View style={containerStyle}>
+          <ChatHeader
+            channel={props.selectedChannel}
+            onMenuClick={this.onMenuClick}/>
+          <ChatHistory ref="chatHistory" history={props.history} fetchHistory={() => this.fetchHistory()} />
+          <ChatUsersTyping users={props.typingUsers} />
+          <ChatInput
+            user={props.user}
+            setTypingState={typing => this.onTypingStateChanged(typing)}
+            publishMessage={message => this.onPublishMessage(message)} />
+        </Animated.View>
       </View>
     );
   }
 
   componentDidMount() {
-    this.subscription = subscribe(
-      p => this.onPresenceChange(p),
-      m => this.onMessageReceived(m));
-
-    participants().then(participants => {
-      this.props.addUsers(participants.map(p => p.uuid));
-    });
-
+    this.subscribeToChannel();
     this.fetchHistory();
+  }
+
+  componentDidUpdate(prevProps) {
+    const {props} = this;
+
+    if (props.selectedChannel.name !== prevProps.selectedChannel.name) {
+      Promise.resolve(props.clearHistory())
+        .then(() => {
+          this.subscribeToChannel();
+          this.fetchHistory();
+        });
+    }
+
+    // scroll down on fresh load
+    //if (prevProps.history.length === 0 &&
+      //props.history.length > prevProps.history.length) {
+      //this.refs.chatHistory.scrollToBottom();
+    //}
   }
 
   componentWillUnmount() {
     if (this.subscription) {
-      this.subscription.unsubscribe();
-      this.subscription = null;
+      this.state.subscription.unsubscribe();
+      this.setState({ subscription: null });
     }
   }
 
-  fetchHistory() {
-    const {lastMessageTimestamp, addHistory} = this.props;
+  subscribeToChannel = () => {
+    const channel = this.props.selectedChannel.name;
 
-    history(lastMessageTimestamp).then(response => {
+    if (this.state.subscription) {
+      this.state.subscription.unsubscribe();
+
+    }
+    this.setState({
+      subscription: pubnubService.subscribe(
+        channel,
+        p => this.onPresenceChange(p),
+        m => this.onMessageReceived(m)
+      )
+    });
+  }
+
+  fetchHistory = () => {
+    const {lastMessageTimestamp, selectedChannel, addHistory} = this.props;
+
+    pubnubService.history(selectedChannel.name, lastMessageTimestamp).then(response => {
       // make sure we're not duplicating our existing history
       if (response.messages.length > 0 &&
           lastMessageTimestamp !== response.startTimeToken) {
         addHistory(response.messages, response.startTimeToken)
       }
-    })
-  }
-
-  onTypingStateChanged(typing) {
-    if (typing) {
-      this.props.startTyping(this.props.currentUserId);
-    }
-    else {
-      this.props.stopTyping(this.props.currentUserId);
-    }
-
-    publishTypingState(this.props.currentUserId, typing);
-  }
-
-  onMessageReceived(message) {
-    this.props.addMessage(message.message);
-
-    // scroll down to new message
-    const scrollViewHeight = this.refs.chatHistory.state.scrollViewHeight;
-    this.refs.chatHistory.refs.scrollView.scrollTo({
-      x: 0,
-      y: scrollViewHeight,
-      animated: false,
     });
   }
 
+  onMenuClick = () => {
+    const toValue = this.state.menuOpen ?
+      0 : -1 * (Dimensions.get('window').width - 40);
+
+    this.setState({ menuOpen: !this.state.menuOpen }, () =>
+      Animated.timing(
+        this.state.viewPosition,
+        { toValue, easing: Easing.inOut(Easing.ease) }
+      ).start()
+    );
+  }
+
+  onTypingStateChanged(typing) {
+    const {props} = this;
+    if (typing) {
+
+      props.startTyping(props.user.id);
+    }
+    else {
+      props.stopTyping(props.user.id);
+    }
+
+    pubnubService.publishTypingState(props.user.id, typing);
+  }
+
+  onMessageReceived(obj) {
+    this.props.addMessage(obj.message);
+
+    // scroll down to new message
+    this.refs.chatHistory.scrollToBottom();
+  }
+
   onPresenceChange(presenceData) {
+    const {props} = this;
+
     switch (presenceData.action) {
       case 'join':
-        this.props.addUsers([presenceData.uuid]);
         break;
       case 'leave':
       case 'timeout':
-        this.props.removeUser(presenceData.uuid);
         break;
       case 'state-change':
         if (presenceData.state) {
           if (presenceData.state.isTyping === true) {
-            this.props.startTyping(presenceData.uuid);
+            props.startTyping(presenceData.uuid);
           }
           else {
-            this.props.stopTyping(presenceData.uuid);
+            props.stopTyping(presenceData.uuid);
           }
         }
         break;
@@ -132,11 +196,10 @@ class BareConversation extends Component {
     }
   }
 
-  onPublishMessage(message) {
-    publishMessage(channel, message)
-      .then(() => {
-        this.props.addMessage(message);
-      })
+  onPublishMessage = (message) => {
+    const channel = this.props.selectedChannel.name;
+
+    pubnubService.publishMessage(channel, message)
       .catch(error => {
         console.error('Failed to publish message:', error);
       });
@@ -144,16 +207,28 @@ class BareConversation extends Component {
 }
 
 BareConversation.propTypes = {
-  currentUserId: PropTypes.string,
-  users: PropTypes.array,
+  user: PropTypes.object,
+  channels: PropTypes.array,
+  friends: PropTypes.array,
   typingUsers: PropTypes.array,
   history: PropTypes.array,
+  selectedChannel: PropTypes.object,
   lastMessageTimestamp: PropTypes.number,
 };
 
 const mapStateToProps = state =>
-  Object.assign({}, state.conversation.toJS(), {
-    currentUserId: state.connection.get('currentUserId'),
-  });
+  Object.assign({},
+    state.conversation.toJS(),
+    {
+      friends: state.conversation.get('friends').toArray(), // <k,v> -> [v]
+      typingUsers: state.conversation.get('typingUsers').toArray(), // <k,v> -> [v]
+      channels: [channel]
+    }
+  );
 
-export const Conversation = connect(mapStateToProps, conversationActions)(BareConversation);
+export default connect(
+  mapStateToProps,
+  {...conversationActions,
+   disconnect: connectionActions.disconnect}
+)(BareConversation);
+
