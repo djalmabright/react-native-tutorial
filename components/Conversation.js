@@ -97,12 +97,6 @@ class BareConversation extends Component {
           this.fetchHistory();
         });
     }
-
-    // scroll down on fresh load
-    //if (prevProps.history.length === 0 &&
-      //props.history.length > prevProps.history.length) {
-      //this.refs.chatHistory.scrollToBottom();
-    //}
   }
 
   componentWillUnmount() {
@@ -168,8 +162,10 @@ class BareConversation extends Component {
   onMessageReceived(obj) {
     this.props.addMessage(obj.message);
 
-    // scroll down to new message
-    this.refs.chatHistory.scrollToBottom();
+    // scroll down to new message after it's added to history
+    setTimeout(() =>
+      this.refs.chatHistory.scrollToBottom(),
+    0);
   }
 
   onPresenceChange(presenceData) {

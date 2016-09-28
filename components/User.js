@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 
-import {View, Image} from 'react-native';
+import {View, Platform, Image} from 'react-native';
 
 import s from '../styles';
 
@@ -8,10 +8,14 @@ export default class User extends Component {
   render() {
     const {uri, size} = this.props;
 
+    // border radius has to be applied on the image for android
+    const baseImageStyle = {width: size, height: size};
+    const imageStyle = Platform.OS === 'ios' ? baseImageStyle : [s.rounded6, baseImageStyle];
+
     return (
-      <View style={[s.rounded6, { width: size, height: size, overflow: 'hidden' }]}>
+      <View style={[s.rounded6, {width: size, height: size, overflow: 'hidden' }]}>
         <Image
-          style={{width: size, height: size}}
+          style={imageStyle}
           source={{uri}} />
       </View>
     );

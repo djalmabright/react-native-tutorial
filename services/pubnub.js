@@ -2,7 +2,6 @@ import {Set} from 'immutable';
 import PubNub from 'pubnub';
 
 import {
-  // channel,
   config,
   messageCount,
 } from '../constants';
