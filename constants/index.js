@@ -1,4 +1,4 @@
-export * from './configuration-base';
-export * from './configuration';
 export * from './connection-state';
+export * from './config';
+export const channel = 'ReactChat';
 export const messageCount = 15;

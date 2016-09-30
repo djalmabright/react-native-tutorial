@@ -1,11 +1,4 @@
-import { Platform } from 'react-native';
-
-let config;
-if (Platform.OS === 'ios') {
-  config = require('../constants/configuration.ios').config;
-} else {
-  config = require('../constants/configuration.android').config;
-}
+import {config} from '../constants';
 
 export class api {
   static getUser(accessToken) {

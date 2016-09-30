@@ -9,16 +9,13 @@ const passport = require('passport');
 const GithubStrategy = require('passport-github2').Strategy;
 const PubNub = require('pubnub');
 const I = require('immutable');
-
-const {channel, commonConfiguration} = require('../constants/configuration-base');
-
-const {config: android} = require('../constants/configuration.android');
-const {config: ios} = require('../constants/configuration.ios');
+const dotenv = require('dotenv');
 
 require('isomorphic-fetch');
 const storage = require('node-persist');
 
 storage.initSync();
+dotenv.load();
 
 const app = express();
 
@@ -26,12 +23,34 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 let config;
+
+const server = {
+  publishKey: process.env.PUBNUB_PUBLISH_KEY,
+  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY,
+  secretKey: process.env.PUBNUB_SECRET_KEY,
+  authKey: process.env.PUBNUB_AUTH_KEY,
+};
+
 switch (process.argv[2]) {
   case 'android':
-    config = android;
+    config = {
+      server,
+      github: {
+        clientID: process.env.GITHUB_CLIENT_ID_ANDROID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET_ANDROID,
+      },
+      host: process.env.HOST_ANDROID,
+    };
     break;
   case 'ios':
-    config = ios;
+    config = {
+      server,
+      github: {
+        clientID: process.env.GITHUB_CLIENT_ID_IOS,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET_IOS,
+      },
+      host: process.env.HOST_IOS,
+    };
     break;
   default:
     console.error('You must provide a command-line argument that specifies whether running for Android or iOS');
@@ -169,7 +188,7 @@ app.get('/friends', (req, res) => {
   }
 });
 
-app.listen(config.port, '0.0.0.0', () => console.log(`Listening on port ${config.port}`));
+app.listen(process.env.PORT, '0.0.0.0', () => console.log(`Listening on port ${process.env.PORT}`));
 
 function formatUser(user) {
   return {

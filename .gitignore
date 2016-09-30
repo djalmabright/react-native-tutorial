@@ -3,6 +3,10 @@ logs
 *.log
 npm-debug.log*
 
+# config
+constants/config.js
+.env
+
 # Patch orig/reject files
 *.orig
 *.rej
