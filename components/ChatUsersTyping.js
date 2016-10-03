@@ -7,11 +7,11 @@ import {
 
 const Spinner = require('react-native-spinkit');
 
-import User from './User';
+import {User} from './User';
 
 import styles from '../styles';
 
-export default class ChatUsersTyping extends Component {
+export class ChatUsersTyping extends Component {
   render() {
     const {users} = this.props;
 
@@ -22,7 +22,7 @@ export default class ChatUsersTyping extends Component {
       styles.h2,
       styles.itemsCenter,
       styles.jcCenter,
-      { left: 5, top: -5 }
+      {left: 5, top: -5}
     ];
 
     return (

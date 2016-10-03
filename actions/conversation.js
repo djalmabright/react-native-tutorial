@@ -7,7 +7,6 @@ export const START_TYPING = 'START_TYPING';
 export const STOP_TYPING = 'STOP_TYPING';
 export const SELECT_CHANNEL = 'SELECT_CHANNEL';
 
-
 export const conversationActions = {
   startTyping(userId) {
     return {type: START_TYPING, payload: userId};

@@ -4,22 +4,24 @@ import {
   View,
   Text,
   ListView,
+  ScrollView,
   TouchableOpacity,
 } from 'react-native';
 
-import User from './User';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import s from '../styles';
+import {User} from './User';
+
+import styles from '../styles';
 
 const renderChannel = (selectChannel) => (channel) => {
   return (
-    <TouchableOpacity style={[s.p2]}
+    <TouchableOpacity style={[styles.p2]}
       activeOpacity={0.6}
       onPress={() => selectChannel(channel)}>
-      <View style={[s.flxRow]}>
+      <View style={[styles.flxRow]}>
         <Icon name="message" size={30} color="white" />
-        <Text style={[s.silver, s.ml2, {marginTop: 6}]}>{ channel }</Text>
+        <Text style={[styles.silver, styles.ml2, {marginTop: 6}]}>{channel}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -27,20 +29,20 @@ const renderChannel = (selectChannel) => (channel) => {
 
 const renderFriend = (selectFriend) => (friend) => {
   return (
-    <TouchableOpacity style={[s.p2]}
+    <TouchableOpacity style={[styles.p2]}
       activeOpacity={0.6}
       onPress={() => selectFriend(friend.id)}>
-      <View style={[s.flxRow]}>
+      <View style={[styles.flxRow]}>
         <User uri={friend.avatar_url} size={32} />
-        <View style={[s.ml2, {marginTop: 6}]}>
-          <Text style={[s.silver]}>{friend.login}</Text>
+        <View style={[styles.ml2, {marginTop: 6}]}>
+          <Text style={[styles.silver]}>{friend.login}</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 };
 
-export default class ChatMenu extends Component {
+export class ChatMenu extends Component {
   constructor(props) {
     super();
 
@@ -54,30 +56,40 @@ export default class ChatMenu extends Component {
   }
 
   render() {
-    const {props} = this;
+    const {
+      channels,
+      friends,
+      selectChannel,
+      selectFriend,
+      signOut,
+    } = this.props;
 
-    const channels = this.channelsDataSource.cloneWithRows(props.channels);
-    const friends = this.friendsDataSource.cloneWithRows(props.friends);
+    const channelsSource = this.channelsDataSource.cloneWithRows(channels);
+    const friendsSource = this.friendsDataSource.cloneWithRows(friends);
 
     return (
-      <View style={[s.flx1, s.flxCol, s.selfStretch, s.pt3, s.ph3, s.ml2, s.bgNavy]}>
-        <TouchableOpacity style={[s.mb3, s.pl2]}
+      <View style={[styles.flx1, styles.flxCol, styles.selfStretch, styles.pt3, styles.ph3, styles.ml2, styles.bgNavy]}>
+        <TouchableOpacity style={[styles.mb3, styles.pl2]}
           activeOpacity={0.6}
-          onPress={props.signOut}>
-          <View style={[s.flxRow]}>
+          onPress={signOut}>
+          <View style={[styles.flxRow]}>
             <Icon name="power-settings-new" size={25} color="white" />
-            <Text style={[s.silver, s.ml1, {marginTop: 6}]}>Sign Out</Text>
+            <Text style={[styles.silver, styles.ml1, {marginTop: 6}]}>Sign Out</Text>
           </View>
         </TouchableOpacity>
-        <ListView style={[s.mb3, s.flx1]}
-          dataSource={channels}
-          renderHeader={() =>  (<Text style={[s.silver, s.pl2, s.f3]}>Channels</Text>)}
-          renderRow={renderChannel(props.selectChannel)}/>
-        <ListView style={[s.flx2]}
-          enableEmptySections
-          dataSource={friends}
-          renderHeader={() => (<Text style={[s.silver, s.pl2, s.f3]}>Friends</Text>)}
-          renderRow={renderFriend(props.selectFriend)}/>
+        <ScrollView>
+          <ListView style={[styles.mb3, styles.flx1]}
+            dataSource={channelsSource}
+            scrollEnabled={false}
+            renderHeader={() => (<Text style={[styles.silver, styles.pl2, styles.f3]}>Channels</Text>)}
+            renderRow={renderChannel(selectChannel)}/>
+          <ListView style={[styles.flx2]}
+            enableEmptySections
+            scrollEnabled={false}
+            dataSource={friendsSource}
+            renderHeader={() => (<Text style={[styles.silver, styles.pl2, styles.f3]}>Friends</Text>)}
+            renderRow={renderFriend(selectFriend)}/>
+        </ScrollView>
       </View>
     );
   }

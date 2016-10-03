@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import User from './User';
+
+import {User} from './User';
+
 import {messageCount} from '../constants';
 
 import styles from '../styles';
@@ -43,7 +45,7 @@ const renderMessage = (data) => {
   );
 };
 
-export default class ChatHistory extends Component {
+export class ChatHistory extends Component {
   constructor() {
     super();
 

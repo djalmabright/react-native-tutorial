@@ -33,13 +33,13 @@ const mapDispatchToProps =
       error => dispatch(connectionActions.failure()),
   });
 
-class Container extends Component {
+class BareContainer extends Component {
   render() {
     const {connectionState, failureTrace} = this.props;
 
     switch (connectionState) {
       case ConnectionState.Idle:
-        return (<ChatLogin onSubmit={this.onLogin.bind(this)}/>);
+        return <ChatLogin onSubmit={this.onLogin.bind(this)}/>;
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
@@ -84,9 +84,9 @@ class Container extends Component {
   }
 }
 
-Container.PropTypes = {
+BareContainer.PropTypes = {
   connectionState: PropTypes.object,
   failureTrace: PropTypes.object,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Container);
+export const Container = connect(mapStateToProps, mapDispatchToProps)(BareContainer);

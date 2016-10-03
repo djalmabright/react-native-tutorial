@@ -10,11 +10,11 @@ import {
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import User from './User';
+import {User} from './User';
 
 import styles from '../styles';
 
-export default class ChatHeader extends Component {
+export class ChatHeader extends Component {
   render() {
     const {props} = this;
 

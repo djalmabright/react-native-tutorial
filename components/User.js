@@ -4,7 +4,7 @@ import {View, Platform, Image} from 'react-native';
 
 import styles from '../styles';
 
-export default class User extends Component {
+export class User extends Component {
   render() {
     const {uri, size} = this.props;
 

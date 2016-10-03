@@ -10,11 +10,12 @@ import {
   Dimensions,
 } from 'react-native';
 
-import ChatMenu from './ChatMenu';
-import ChatHistory from './ChatHistory';
-import ChatInput from './ChatInput';
-import ChatHeader from './ChatHeader';
-import ChatUsersTyping from './ChatUsersTyping';
+import {ChatMenu} from './ChatMenu';
+import {ChatHistory} from './ChatHistory';
+import {ChatInput} from './ChatInput';
+import {ChatHeader} from './ChatHeader';
+import {ChatUsersTyping} from './ChatUsersTyping';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {conversationActions, connectionActions} from '../actions';

@@ -1,4 +1,5 @@
-import * as pubnubService from '../services/pubnub';
+import {connect, disconnect} from '../services/pubnub';
+
 import {api} from '../services';
 
 export const CONNECTING = 'CONNECT';
@@ -16,7 +17,7 @@ export const connectionActions = {
         .then(res => {
           user = res;
           // use github id as pubnub uuid
-          return pubnubService.connect(authenticationToken, user.id)
+          return connect(authenticationToken, user.id)
         })
         .then(() => {
           dispatch({type: CONNECTED, payload: user});
@@ -37,7 +38,7 @@ export const connectionActions = {
   },
 
   disconnect() {
-    return dispatch => pubnubService.disconnect()
+    return dispatch => disconnect()
       .then(() => dispatch({type: DISCONNECTED, payload: {}}));
   },
 

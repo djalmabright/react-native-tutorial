@@ -8,19 +8,19 @@ import {
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import s from '../styles';
+import styles from '../styles';
 
 export class ChatLogin extends Component {
   render() {
     const {props} = this;
     return (
-      <View style={[s.flx1, s.flxRow, s.selfStretch, s.bgWhite, s.jcCenter]}>
-        <TouchableOpacity style={[s.rounded1, s.selfCenter, s.p2, s.bgBase]}
+      <View style={[styles.flx1, styles.flxRow, styles.selfStretch, styles.bgWhite, styles.jcCenter]}>
+        <TouchableOpacity style={[styles.rounded1, styles.selfCenter, styles.p2, styles.bgBase]}
           activeOpacity={0.5}
           onPress={props.onSubmit}>
-          <View style={[s.flxRow]}>
+          <View style={[styles.flxRow]}>
             <Icon name="vpn-key" size={25} color="white" />
-            <Text style={[s.white, s.f3, s.ml1]}>Login with GitHub</Text>
+            <Text style={[styles.white, styles.f3, styles.ml1]}>Login with GitHub</Text>
           </View>
         </TouchableOpacity>
       </View>
