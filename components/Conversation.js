@@ -48,6 +48,7 @@ class BareConversation extends Component {
       history,
       friends,
       disconnect,
+      selectChannel,
       selectedChannel,
       user,
       typingUsers,
