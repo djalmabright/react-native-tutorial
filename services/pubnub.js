@@ -12,18 +12,17 @@ let presenceSubscriptions = Set();
 
 let messageSubscriptons = Set();
 
-const identifier = () => Math.random().toString(10).slice(12);
-
-export const connect = () => {
+export const connect = (authenticationToken, uuid) => {
   if (connection) {
     return connection;
   }
 
   connection = new Promise((resolve, reject) => {
-    const uuid = identifier();
     const options = Object.assign({}, config.client, {uuid});
 
     const pubnub = new PubNub(options);
+
+    pubnub.setAuthKey(authenticationToken);
 
     const initialHandler = {
       status: statusEvent => {
@@ -146,12 +145,11 @@ export const history = (channel, startTime) =>
     .catch(reject);
   });
 
-export const publishTypingState = (channel, uuid, isTyping) =>
+export const publishTypingState = (channel, user, isTyping) =>
   connect().then(({ pubnub }) =>
-    pubnub.state({
-      channel,
-      uuid,
-      state: {isTyping},
+    pubnub.setState({
+      channels: [channel],
+      state: {isTyping, user},
     }));
 
 export const publishMessage = (channel, message) =>

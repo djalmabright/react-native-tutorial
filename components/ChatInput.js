@@ -52,13 +52,13 @@ export default class ChatInput extends Component {
     }
 
     const messageObj = {
-      Who: props.userId,
+      Who: props.user,
       What: value,
       When: new Date().valueOf(),
     };
 
-    props.publishMessage(messageObj);
     props.setTypingState(false);
+    props.publishMessage(messageObj);
 
     this.reset();
   }
@@ -82,7 +82,7 @@ export default class ChatInput extends Component {
       {width: 220, borderBottomWidth: 0},
     ];
 
-    const {userId} = this.props;
+    const {user} = this.props;
 
     return (
       <View style={containerStyle}>
@@ -102,10 +102,10 @@ export default class ChatInput extends Component {
           </Fab>
         </View>
         <View style={[s.mt2, s.flxRow, s.rounded6, s.bgSilver, s.h2, {width: 130}]}>
-          <User id={userId} size={32} />
+          <User uri={user.avatar_url} size={32} />
           <View style={[s.ml1]}>
             <Text style={[s.black, s.italics, s.f6, {marginTop: 8, fontStyle: 'italic'}]}>
-              {userId}
+              {user.login}
             </Text>
           </View>
         </View>

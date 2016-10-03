@@ -27,12 +27,12 @@ export default class ChatUsersTyping extends Component {
 
     return (
       <View style={[{flex: 0}, s.flxRow]}>
-        {users.map(userId =>
-          <View key={userId} style={itemStyle}>
-            <User id={userId} size={32}/>
+        {users.map(user =>
+          <View key={user.id} style={itemStyle}>
+            <User uri={user.avatar_url} size={32}/>
             <View style={[s.ml1]}>
               <Text style={[s.black, s.italics, s.f6, {fontStyle: 'italic'}]}>
-                {userId}
+                {user.login}
               </Text>
             </View>
             <View style={{ marginTop: -5, marginLeft: 8, marginRight: 10}}>

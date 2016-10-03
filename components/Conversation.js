@@ -55,7 +55,7 @@ class BareConversation extends Component {
           <ChatHistory ref="chatHistory" history={props.history} fetchHistory={() => this.fetchHistory()} />
           <ChatUsersTyping users={props.typingUsers} />
           <ChatInput
-            userId={props.userId}
+            user={props.user}
             setTypingState={typing => this.onTypingStateChanged(typing)}
             publishMessage={message => this.onPublishMessage(message)} />
         </View>
@@ -117,24 +117,12 @@ class BareConversation extends Component {
 
   onTypingStateChanged(typing) {
     const {props} = this;
-
-    if (typing) {
-      props.startTyping(props.userId);
-    }
-    else {
-      props.stopTyping(props.userId);
-    }
-
-    pubnubService.publishTypingState(props.userId, typing);
+    const channel = props.selectedChannel.name;
+    pubnubService.publishTypingState(channel, props.user, typing);
   }
 
   onMessageReceived(obj) {
     this.props.addMessage(obj.message);
-
-    // scroll down to new message after it's added to history
-    setTimeout(() =>
-      this.refs.chatHistory.scrollToBottom(),
-    0);
   }
 
   onPresenceChange(presenceData) {
@@ -149,10 +137,10 @@ class BareConversation extends Component {
       case 'state-change':
         if (presenceData.state) {
           if (presenceData.state.isTyping === true) {
-            props.startTyping(presenceData.uuid);
+            props.startTyping(presenceData.state.user);
           }
           else {
-            props.stopTyping(presenceData.uuid);
+            props.stopTyping(presenceData.state.user);
           }
         }
         break;
@@ -172,7 +160,7 @@ class BareConversation extends Component {
 }
 
 BareConversation.propTypes = {
-  userId: PropTypes.string,
+  user: PropTypes.object,
   typingUsers: PropTypes.array,
   history: PropTypes.array,
   selectedChannel: PropTypes.object,

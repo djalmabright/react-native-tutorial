@@ -13,7 +13,7 @@ import {
 } from '../actions';
 
 export const initialState = fromJS({
-  userId: '',
+  user: Map(),
 
   // Users who are typing
   typingUsers: Map(),
@@ -34,13 +34,13 @@ export const initialState = fromJS({
 export const conversationReducer = (state = initialState, {type, payload}) => {
   switch (type) {
     case CONNECTED:
-      return state.set('userId', payload);
+      return state.set('user', payload);
 
     case START_TYPING:
-      return state.setIn(['typingUsers', payload], payload);
+      return state.setIn(['typingUsers', payload.id], payload);
 
     case STOP_TYPING:
-      return state.deleteIn(['typingUsers', payload]);
+      return state.deleteIn(['typingUsers', payload.id]);
 
     case ADD_HISTORY:
       return state

@@ -12,9 +12,11 @@ import {
 import {connect} from 'react-redux';
 
 import {connectionActions} from './actions';
+import {authenticationService} from './services/authentication';
 import {ConnectionState, config} from './constants';
 
 import Conversation from './components/Conversation';
+import {ChatLogin} from './components/ChatLogin';
 
 import styles from './styles';
 
@@ -27,7 +29,7 @@ const mapStateToProps =
 const mapDispatchToProps =
   dispatch => ({
     connect:
-      () => connectionActions.connect()(dispatch),
+      (authenticationToken) => connectionActions.connect(authenticationToken)(dispatch),
     failure:
       error => dispatch(connectionActions.failure()),
   });
@@ -38,7 +40,7 @@ class Container extends Component {
 
     switch (connectionState) {
       case ConnectionState.Idle:
-        return null;
+        return (<ChatLogin onSubmit={this.onLogin.bind(this)}/>);
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
@@ -63,12 +65,19 @@ class Container extends Component {
     }
   }
 
-  componentDidMount() {
-    this.props.connect();
-  }
+  onLogin() {
+    // This will open up a browser instance that will go through the GitHub login process
+    // and when it is finished, it will bounce back to reactchat://authenticationToken,
+    // which we will extract through our url handler and begin the PubNub connect handshake.
+    Linking.addEventListener('url',
+      event => {
+        const accessToken = authenticationService.getTokenFromUri(event.url);
+        this.props.connect(accessToken);
+      });
 
-  onReconnect() {
-    this.props.connect();
+    const loginUri = `${config.host}/login`;
+
+    Linking.openURL(loginUri).catch(error => this.props.failure(error));
   }
 }
 
