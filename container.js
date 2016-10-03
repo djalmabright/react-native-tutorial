@@ -40,7 +40,7 @@ class Container extends Component {
 
     switch (connectionState) {
       case ConnectionState.Idle:
-        return (<ChatLogin onSubmit={this.login}/>);
+        return (<ChatLogin onSubmit={this.onLogin.bind(this)}/>);
       case ConnectionState.Connecting:
         return (
           <ActivityIndicator
@@ -65,7 +65,7 @@ class Container extends Component {
     }
   }
 
-  login = () => {
+  onLogin() {
     // This will open up a browser instance that will go through the GitHub login process
     // and when it is finished, it will bounce back to reactchat://authenticationToken,
     // which we will extract through our url handler and begin the PubNub connect handshake.

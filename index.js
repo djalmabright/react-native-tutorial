@@ -1,7 +1,3 @@
-import 'es5-shim';
-import 'es6-shim';
-import 'es6-promise';
-
 import React, {Component} from 'react';
 
 import {
