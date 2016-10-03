@@ -140,7 +140,7 @@ class BareConversation extends Component {
   fetchHistory() {
     const {lastMessageTimestamp, selectedChannel, addHistory} = this.props;
 
-    history(selectedChannel.name, lastMessageTimestamp).then(response => {
+    return history(selectedChannel.name, lastMessageTimestamp).then(response => {
       // make sure we're not duplicating our existing history
       if (response.messages.length > 0 &&
           lastMessageTimestamp !== response.startTimeToken) {
@@ -180,11 +180,6 @@ class BareConversation extends Component {
 
   onMessageReceived(obj) {
     this.props.addMessage(obj.message);
-
-    // scroll down to new message after it's added to history
-    setTimeout(() =>
-      this.refs.chatHistory.scrollToBottom(),
-    0);
   }
 
   onPresenceChange(presenceData) {
