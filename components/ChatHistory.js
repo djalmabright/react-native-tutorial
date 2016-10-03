@@ -13,29 +13,30 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import User from './User';
 import {messageCount} from '../constants';
 
-import s from '../styles';
+import styles from '../styles';
 
 const messagesInAScrollView = Platform.OS === 'ios' ? 6.4 : 5.8;
 
 const renderMessage = (data) => {
   const msgDate = new Date(data.When);
+
   const msgDateTime = msgDate.toLocaleDateString() + ' at ' + msgDate.toLocaleTimeString();
 
   return (
-    <View style={[ s.flx1, s.flxRow, s.p1, s.borderBHl, { borderColor: '#aaa' }]} key={data.When}>
-      <View style={[s.mt1]}>
+    <View style={[styles.flx1, styles.flxRow, styles.p1, styles.borderBHl, {borderColor: '#aaa'}]} key={data.When}>
+      <View style={[styles.mt1]}>
         <User uri={data.Who.avatar_url} size={32} />
       </View>
-      <View style={[ s.flxCol, s.ml2 ]}>
+      <View style={[styles.flxCol, styles.ml2]}>
         <View>
-          <Text>{ data.Who.login }</Text>
+          <Text>{data.Who.login}</Text>
         </View>
-        <View style={[ s.flxRow ]}>
+        <View style={[styles.flxRow]}>
           <Icon name="alarm" size={14} />
-          <Text style={[ s.f6, { marginLeft: 3 } ]}>{ msgDateTime }</Text>
+          <Text style={[styles.f6, {marginLeft: 3}]}>{msgDateTime}</Text>
         </View>
-        <View style={[ s.mt1 ]}>
-          <Text>{ data.What }</Text>
+        <View style={[styles.mt1]}>
+          <Text>{data.What}</Text>
         </View>
       </View>
     </View>
@@ -57,13 +58,13 @@ export default class ChatHistory extends Component {
     };
   }
 
-  onScroll = (e) => {
+  onScroll(e) {
     if (e.nativeEvent.contentOffset.y === 0) {
       this.props.fetchHistory();
     }
   }
 
-  scrollToBottom = () => {
+  scrollToBottom() {
     // scroll only when we should
     // scrollView takes up about 7 messages,
     // and we need a height that makes sense
@@ -121,21 +122,21 @@ export default class ChatHistory extends Component {
   }
 
   render() {
-    const { props, state, onScroll } = this;
+    const {history} = this.props;
 
     return (
       <View onLayout={(e) =>
           this.setState({ viewHeight: e.nativeEvent.layout.height })
         }
-        style={[s.flx1, s.flxRow, s.selfStretch]}>
+        style={[styles.flx1, styles.flxRow, styles.selfStretch]}>
         <ScrollView ref="scrollView"
           scrollEventThrottle={100}
-          onScroll={onScroll}>
-          { props.history.length === 0 ?
-              (<Text style={[s.italic, s.p2, s.center]}>No messages</Text>) :
+          onScroll={this.onScroll.bind(this)}>
+          {history.length === 0 ?
+              (<Text style={[styles.italic, styles.p2, styles.center]}>No messages</Text>) :
               (<ListView enableEmptySections
                  dataSource={this.state.ds}
-                 renderRow={renderMessage}/>) }
+                 renderRow={renderMessage}/>)}
         </ScrollView>
       </View>
     );

@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import s from '../styles';
 
-export default class ChatLogin extends Component {
+export class ChatLogin extends Component {
   render() {
     const {props} = this;
     return (
@@ -27,7 +27,3 @@ export default class ChatLogin extends Component {
     );
   }
 }
-
-ChatLogin.PropTypes = {
-
-};

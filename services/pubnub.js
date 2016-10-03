@@ -148,12 +148,13 @@ export const history = (channel, startTime) =>
   });
 
 export const publishTypingState = (channel, uuid, isTyping) =>
-  connect().then(({ pubnub }) =>
-    pubnub.state({
-      channel,
+  connect().then(({ pubnub }) => {
+    pubnub.setState({
+      channels: [channel],
       uuid,
       state: {isTyping},
-    }));
+    });
+  });
 
 export const publishMessage = (channel, message) =>
   new Promise((resolve, reject) => {

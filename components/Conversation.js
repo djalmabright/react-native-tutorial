@@ -21,13 +21,19 @@ import {conversationActions, connectionActions} from '../actions';
 
 import {channel} from '../constants';
 
-import * as pubnubService from '../services/pubnub';
+import {
+  history,
+  subscribe,
+  publishMessage,
+  publishTypingState,
+} from '../services/pubnub';
 
-import s from '../styles';
+import styles from '../styles';
 
 class BareConversation extends Component {
   constructor() {
     super();
+
     this.state = {
       subscription: null,
       menuOpen: false,
@@ -36,7 +42,15 @@ class BareConversation extends Component {
   }
 
   render() {
-    const {props} = this;
+    const {
+      channels,
+      history,
+      friends,
+      disconnect,
+      selectedChannel,
+      user,
+      typingUsers,
+    } = this.props;
 
     const absStretch = {
       position: 'absolute',
@@ -47,34 +61,33 @@ class BareConversation extends Component {
     };
 
     // can't use array for Animated.View
-    const containerStyle = {
-      ...absStretch,
+    const containerStyle = Object.assign({}, absStretch, {
       backgroundColor: 'white',
       transform: [{ translateX: this.state.viewPosition }],
-    };
+    });
 
     return (
-      <View style={[s.flx1, s.flxCol, s.selfStretch]}>
+      <View style={[styles.flx1, styles.flxCol, styles.selfStretch]}>
         <ChatMenu style={absStretch}
-          channels={props.channels}
-          friends={props.friends}
-          signOut={props.disconnect}
+          channels={channels}
+          friends={friends}
+          signOut={disconnect}
           selectChannel={(id) => {
-            props.selectChannel('open', id );
+            selectChannel('open', id );
             this.onMenuClick();
           }}
           selectFriend={(id) => {
-            props.selectChannel('direct', id);
+            selectChannel('direct', id);
             this.onMenuClick();
           }}/>
         <Animated.View style={containerStyle}>
           <ChatHeader
-            channel={props.selectedChannel}
-            onMenuClick={this.onMenuClick}/>
-          <ChatHistory ref="chatHistory" history={props.history} fetchHistory={() => this.fetchHistory()} />
-          <ChatUsersTyping users={props.typingUsers} />
+            channel={selectedChannel}
+            onMenuClick={this.onMenuClick.bind(this)}/>
+          <ChatHistory ref="chatHistory" history={history} fetchHistory={() => this.fetchHistory()} />
+          <ChatUsersTyping users={typingUsers} />
           <ChatInput
-            user={props.user}
+            user={user}
             setTypingState={typing => this.onTypingStateChanged(typing)}
             publishMessage={message => this.onPublishMessage(message)} />
         </Animated.View>
@@ -106,7 +119,7 @@ class BareConversation extends Component {
     }
   }
 
-  subscribeToChannel = () => {
+  subscribeToChannel() {
     const channel = this.props.selectedChannel.name;
 
     if (this.state.subscription) {
@@ -114,7 +127,7 @@ class BareConversation extends Component {
 
     }
     this.setState({
-      subscription: pubnubService.subscribe(
+      subscription: subscribe(
         channel,
         p => this.onPresenceChange(p),
         m => this.onMessageReceived(m)
@@ -122,10 +135,10 @@ class BareConversation extends Component {
     });
   }
 
-  fetchHistory = () => {
+  fetchHistory() {
     const {lastMessageTimestamp, selectedChannel, addHistory} = this.props;
 
-    pubnubService.history(selectedChannel.name, lastMessageTimestamp).then(response => {
+    history(selectedChannel.name, lastMessageTimestamp).then(response => {
       // make sure we're not duplicating our existing history
       if (response.messages.length > 0 &&
           lastMessageTimestamp !== response.startTimeToken) {
@@ -134,7 +147,7 @@ class BareConversation extends Component {
     });
   }
 
-  onMenuClick = () => {
+  onMenuClick() {
     const toValue = this.state.menuOpen ?
       0 : -1 * (Dimensions.get('window').width - 40);
 
@@ -147,16 +160,20 @@ class BareConversation extends Component {
   }
 
   onTypingStateChanged(typing) {
-    const {props} = this;
-    if (typing) {
+    const {
+      startTyping,
+      stopTyping,
+      user,
+    } = this.props;
 
-      props.startTyping(props.user.id);
+    if (typing) {
+      startTyping(user.id);
     }
     else {
-      props.stopTyping(props.user.id);
+      stopTyping(user.id);
     }
 
-    pubnubService.publishTypingState(props.user.id, typing);
+    publishTypingState(user.id, typing);
   }
 
   onMessageReceived(obj) {
@@ -169,7 +186,7 @@ class BareConversation extends Component {
   }
 
   onPresenceChange(presenceData) {
-    const {props} = this;
+    const {startTyping, stopTyping} = this.props;
 
     switch (presenceData.action) {
       case 'join':
@@ -180,10 +197,10 @@ class BareConversation extends Component {
       case 'state-change':
         if (presenceData.state) {
           if (presenceData.state.isTyping === true) {
-            props.startTyping(presenceData.uuid);
+            startTyping(presenceData.uuid);
           }
           else {
-            props.stopTyping(presenceData.uuid);
+            stopTyping(presenceData.uuid);
           }
         }
         break;
@@ -192,10 +209,12 @@ class BareConversation extends Component {
     }
   }
 
-  onPublishMessage = (message) => {
-    const channel = this.props.selectedChannel.name;
+  onPublishMessage(message) {
+    const {selectedChannel} = this.props;
 
-    pubnubService.publishMessage(channel, message)
+    const channel = selectedChannel.name;
+
+    publishMessage(channel, message)
       .catch(error => {
         console.error('Failed to publish message:', error);
       });
@@ -214,17 +233,15 @@ BareConversation.propTypes = {
 
 const mapStateToProps = state =>
   Object.assign({},
-    state.conversation.toJS(),
-    {
+    state.conversation.toJS(), {
       friends: state.conversation.get('friends').toArray(), // <k,v> -> [v]
       typingUsers: state.conversation.get('typingUsers').toArray(), // <k,v> -> [v]
       channels: [channel]
     }
   );
 
-export default connect(
-  mapStateToProps,
-  {...conversationActions,
-   disconnect: connectionActions.disconnect}
-)(BareConversation);
+const actions = Object.assign({}, conversationActions, {
+   disconnect: connectionActions.disconnect,
+});
 
+export const Conversation = connect(mapStateToProps, actions)(BareConversation);

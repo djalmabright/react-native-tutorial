@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 
 import {View, Platform, Image} from 'react-native';
 
-import s from '../styles';
+import styles from '../styles';
 
 export default class User extends Component {
   render() {
@@ -10,13 +10,11 @@ export default class User extends Component {
 
     // border radius has to be applied on the image for android
     const baseImageStyle = {width: size, height: size};
-    const imageStyle = Platform.OS === 'ios' ? baseImageStyle : [s.rounded6, baseImageStyle];
+    const imageStyle = Platform.OS === 'ios' ? baseImageStyle : [styles.rounded6, baseImageStyle];
 
     return (
-      <View style={[s.rounded6, {width: size, height: size, overflow: 'hidden' }]}>
-        <Image
-          style={imageStyle}
-          source={{uri}} />
+      <View style={[styles.rounded6, {width: size, height: size, overflow: 'hidden' }]}>
+        <Image style={imageStyle} source={{uri}} />
       </View>
     );
   }

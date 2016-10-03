@@ -14,9 +14,8 @@ import {connect} from 'react-redux';
 import {connectionActions} from './actions';
 import {AuthenticationService, api} from './services';
 import {ConnectionState, config} from './constants';
-
-import Conversation from './components/Conversation';
-import ChatLogin from './components/ChatLogin';
+import {Conversation} from './components/Conversation';
+import {ChatLogin} from './components/ChatLogin';
 
 import styles from './styles';
 
