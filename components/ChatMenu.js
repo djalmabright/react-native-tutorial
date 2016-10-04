@@ -33,7 +33,7 @@ const renderFriend = (selectFriend) => (friend) => {
       activeOpacity={0.6}
       onPress={() => selectFriend(friend.id)}>
       <View style={[styles.flxRow]}>
-        <User uri={friend.avatar_url} size={32} />
+        <User uri={friend.avatarUrl} size={32} />
         <View style={[styles.ml2, {marginTop: 6}]}>
           <Text style={[styles.silver]}>{friend.login}</Text>
         </View>

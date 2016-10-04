@@ -28,7 +28,7 @@ export class ChatHeader extends Component {
 
     const visual = props.channel.type === 'open' ?
       (<Icon name="people" size={styles.iconSize} color="white" />) :
-      (<User uri={props.channel.user.avatar_url} size={40} />);
+      (<User uri={props.channel.user.avatarUrl} size={40} />);
 
     return (
       <View style={containerStyle}>

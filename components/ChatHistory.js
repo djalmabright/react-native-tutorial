@@ -25,7 +25,7 @@ const renderMessage = (index, data) => {
   return (
     <View style={[styles.flx1, styles.flxRow, styles.p1, styles.borderBHl, {borderColor: '#aaa'}]} key={index}>
       <View style={[styles.mt1]}>
-        <User uri={data.Who.avatar_url} size={32} />
+        <User uri={data.Who.avatarUrl} size={32} />
       </View>
       <View style={[styles.flxCol, styles.ml2]}>
         <View>

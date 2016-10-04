@@ -6,51 +6,34 @@ require('babel-register')({
 
 const express = require('express');
 const passport = require('passport');
-const GithubStrategy = require('passport-github2').Strategy;
 const PubNub = require('pubnub');
-const I = require('immutable');
-const dotenv = require('dotenv');
 
-require('isomorphic-fetch');
+const GithubStrategy = require('passport-github2').Strategy;
+
+const fetch = require('isomorphic-fetch');
+
 const storage = require('node-persist');
 
+const {config} = require('../config');
+const {createChannels} = require('../services/channel');
+
 storage.initSync();
-dotenv.load();
 
 const app = express();
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-let config;
-
-const server = {
-  publishKey: process.env.PUBNUB_PUBLISH_KEY,
-  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY,
-  secretKey: process.env.PUBNUB_SECRET_KEY,
-  authKey: process.env.PUBNUB_AUTH_KEY,
-};
-
+let hostname;
+let github;
 switch (process.argv[2]) {
   case 'android':
-    config = {
-      server,
-      github: {
-        clientID: process.env.GITHUB_CLIENT_ID_ANDROID,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET_ANDROID,
-      },
-      host: process.env.HOST_ANDROID,
-    };
+    hostname = config.host.android;
+    github = config.github.android;
     break;
   case 'ios':
-    config = {
-      server,
-      github: {
-        clientID: process.env.GITHUB_CLIENT_ID_IOS,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET_IOS,
-      },
-      host: process.env.HOST_IOS,
-    };
+    hostname = config.host.ios;
+    github = config.github.ios;
     break;
   default:
     console.error('You must provide a command-line argument that specifies whether running for Android or iOS');
@@ -60,37 +43,45 @@ switch (process.argv[2]) {
     break; // notreachable
 }
 
-/*
- * set up PubNub
- */
 const pubnubHandle = new PubNub(
-  Object.assign({}, config.server, {
+  Object.assign({}, config.pubnub, {
     error: error => {
       console.error('Failed to initialize PubNub:', error);
     }
-  })
-);
+  }));
 
-/*
- * grant to serverAuth the ability to add/remove channels to any channel group
- */
-pubnubHandle.grant(
-  {
-    authKey: config.server.authKey,
-    manage: true,
-    read: true,
-    write: true,
-    ttl: 0,
-  },
-  status => status.error ?
-    console.error(status.error) :
-    console.log('PubNub initialized')
-);
+const executeGrant = options =>
+  new Promise((resolve, reject) => {
+    pubnubHandle.grant(options,
+      status => {
+        if (status.error) {
+          reject(new Error(`Grant failed: ${status.category}`));
+        }
+        else {
+          resolve();
+        }
+      });
+  });
 
-passport.use(new GithubStrategy({
-    clientID: config.github.clientID,
-    clientSecret: config.github.clientSecret,
-    callbackURL: `${config.host}/callback`,
+
+const grantOptions = {
+  authKey: config.pubnub.authKey,
+  manage: true,
+  read: true,
+  write: true,
+  ttl: 0,
+};
+
+executeGrant(grantOptions)
+  .catch(error => {
+    console.error('Failed to grant authentication permission', status.category);
+  });
+
+passport.use(
+  new GithubStrategy({
+    clientID: github.clientId,
+    clientSecret: github.clientSecret,
+    callbackURL: `http://${hostname}:${config.port}/callback`,
   },
   (accessToken, refreshToken, profile, done) => {
     let user = profile;
@@ -109,62 +100,63 @@ passport.deserializeUser((id, done) =>
 );
 
 app.get('/login', passport.authenticate('github'),
-  (req, res) =>
+  (req, res) => {
     // allow user to publish to open channels
-    pubnubHandle.grant(
-      {
-        channels: [channel],
-        channelGroups: [],
-        authKeys: [req.user.accessToken],
-        ttl: 0,
-        read: true,
-        write: true,
-      },
-      status => status.error ?
-        res.status(403).send() :
-        res.status(200).send()
-    )
-  );
+    executeGrant({
+      channels: [channel],
+      channelGroups: [],
+      authKeys: [req.user.accessToken],
+      ttl: 0,
+      read: true,
+      write: true,
+    })
+    .then(() => {
+      res.status(200).send();
+    })
+    .catch(error => {
+      res.status(403).send(error.stack);
+    });
+  });
 
 app.get('/callback',
-  passport.authenticate(
-    'github',
-    { failureRedirect: '/login' }),
-  (req, res) => res.redirect(`reactchat://${req.user.accessToken}`)
-);
+    passport.authenticate('github', {failureRedirect: '/login'}),
+  (req, res) => res.redirect(`reactchat://${req.user.accessToken}`));
 
-app.get('/user', (req, res) => {
-  const user = I.List(storage.values())
-    .find(u => u.accessToken === req.query.accessToken);
+const findUser = predicate => storage.values().find(predicate);
 
-  if (user) {
-    res.status(200).send(formatUser(user._json));
-  }
-  res.status(404).send();
-});
+app.get('/user',
+  (req, res) => {
+    const user = findUser(u => u.accessToken === req.query.accessToken);
+    if (user) {
+      res.status(200).send(formatUser(user._json));
+    }
+    else {
+      res.status(404).send();
+    }
+  });
 
-app.get('/friends', (req, res) => {
-  const user = I.List(storage.values())
-    .find(u => u.accessToken === req.query.accessToken);
+app.get('/friends',
+  (req, res) => {
+    const user = findUser(u => u.accessToken === req.query.accessToken);
+    if (user == null) {
+      res.status(500).send();
+      return;
+    }
 
-  if (user) {
-    Promise.all([
+    const promises = [
       fetch(user._json.followers_url).then(r => r.json()),
-      // change lookup link to fetch all 'following' users
       fetch(user._json.following_url.match(/^.+(?={)/)[0]).then(r => r.json())
-    ])
-    .then(([followers, following]) => {
-      // grab unique members of both lists
-      const friends = followers.concat(following).reduce(
-        (map, f) => map.has(f.id) ? map : map.set(f.id, f),
-        I.Map()
-      ).toArray();
+    ];
 
-      // create direct conversation channels
-      const friendChannels = createFriendChannels(user, friends);
+    Promise.all(promises)
+      .then(([followers, following]) => {
+        // grab unique members of both lists
+        const friends = followers.concat(following);
 
-      pubnubHandle.grant(
-        {
+        // create direct conversation channels
+        const friendChannels = createChannels(user.id, friends.map(f => f.id));
+  
+        executeGrant({
           channels: friendChannels,
           channelGroups: [],
           authKeys: [user.accessToken],
@@ -172,42 +164,30 @@ app.get('/friends', (req, res) => {
           read: true,
           write: true,
           manage: false,
-        },
-        status => status.error ?
-          res.status(403).send(status.error) :
-          res.status(200).send(
-            friends
-              .map(formatUser)
-              // create key value pairs
-              .reduce((m, u) => { m[u.id] = u; return m; }, {})
-          )
-      )
-    })
-  } else {
-    res.status(500).send();
-  }
+        })
+        .catch(error => {
+          res.status(403).send(status.category);
+        })
+        .then(() => {
+          const result = {};
+
+          friends.map(formatUser).forEach(u => result[u.id] = u);
+
+          res.status(200).send(result);
+        });
+      })
+      .catch(error => {
+        console.error('Failed to retrieve friends list', error);
+      });
+    });
+
+const port = process.env.PORT || config.port;
+
+app.listen(port, '0.0.0.0', () => console.log(`Listening on port ${port}`));
+
+const formatUser = user => ({
+  avatarUrl: user.avatar_url,
+  id: user.id,
+  login: user.login,
 });
 
-app.listen(process.env.PORT, '0.0.0.0', () => console.log(`Listening on port ${process.env.PORT}`));
-
-function formatUser(user) {
-  return {
-    login: user.login,
-    id: user.id,
-    avatar_url: user.avatar_url,
-  }
-}
-
-function createFriendChannels(user, friends) {
-  let id1; let id2;
-
-  return friends.map(f => {
-    // order the ids so that the channel is unique
-    if (user.id < f.id) {
-      id1 = user.id; id2 = f.id;
-    } else {
-      id2 = user.id; id1 = f.id;
-    }
-    return 'conversation_' + id1 + '_' + id2;
-  });
-}

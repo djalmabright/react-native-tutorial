@@ -104,7 +104,7 @@ export class ChatInput extends Component {
           </Fab>
         </View>
         <View style={[styles.mt2, styles.flxRow, styles.rounded6, styles.bgSilver, styles.h2, {width: 130}]}>
-          <User uri={user.avatar_url} size={32} />
+          <User uri={user.avatarUrl} size={32} />
           <View style={[styles.ml1]}>
             <Text style={[styles.black, styles.italics, styles.f6, {marginTop: 8, fontStyle: 'italic'}]}>
               {user.login}

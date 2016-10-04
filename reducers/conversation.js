@@ -1,6 +1,8 @@
 import {OrderedSet, Map, List, fromJS} from 'immutable';
 import {channel} from '../constants';
 
+import {createChannels} from '../services';
+
 import * as actions from '../actions';
 
 import {
@@ -72,7 +74,7 @@ export const conversationReducer = (state = initialState, {type, payload}) => {
       return state.set(
         'selectedChannel',
         { type: 'direct',
-          name: createFriendChannel(state.get('user').id, payload.id.toString()),
+          name: createChannels(state.get('user').id, [payload.id])[0],
           display: 'Private conversation with ' + user.login,
           user }
       );
@@ -96,14 +98,3 @@ export const conversationReducer = (state = initialState, {type, payload}) => {
   }
 };
 
-
-function createFriendChannel(userId, friendId) {
-  let id1; let id2;
-
-  if (userId < friendId) {
-    id1 = userId; id2 = friendId;
-  } else {
-    id2 = userId; id1 = friendId;
-  }
-  return 'conversation_' + id1 + '_' + id2;
-}
