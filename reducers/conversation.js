@@ -51,14 +51,10 @@ export const conversationReducer = (state = initialState, {type, payload}) => {
       return state.set('friends', Map(payload));
 
     case START_TYPING:
-      if (state.get('user').id === payload) {
-        return state.update('typingUsers', t => t.set(payload, state.get('user')));
-      } else {
-        return state.update(
-          'typingUsers',
-          t => t.set(payload, state.getIn(['friends', payload]))
-        );
-      }
+      return state.setIn(['typingUsers', payload.id], payload);
+
+    case STOP_TYPING:
+      return state.deleteIn(['typingUsers', payload.id]);
 
     case SELECT_CHANNEL:
       if (payload.type === 'open') {
@@ -78,9 +74,6 @@ export const conversationReducer = (state = initialState, {type, payload}) => {
           display: 'Private conversation with ' + user.login,
           user }
       );
-
-    case STOP_TYPING:
-      return state.update('typingUsers', t => t.delete(payload));
 
     case ADD_HISTORY:
       return state

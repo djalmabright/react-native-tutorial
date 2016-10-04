@@ -150,12 +150,11 @@ export const history = (channel, startTime) =>
     .catch(reject);
   });
 
-export const publishTypingState = (channel, uuid, isTyping) =>
+export const publishTypingState = (channel, user, isTyping) =>
   connect().then(({ pubnub }) => {
     pubnub.setState({
       channels: [channel],
-      uuid,
-      state: {isTyping},
+      state: {user, isTyping},
     });
   });
 

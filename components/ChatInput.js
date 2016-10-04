@@ -58,8 +58,8 @@ export class ChatInput extends Component {
       When: new Date().valueOf(),
     };
 
-    props.publishMessage(messageObj);
     props.setTypingState(false);
+    props.publishMessage(messageObj);
 
     this.reset();
   }

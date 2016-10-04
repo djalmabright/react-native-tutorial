@@ -165,17 +165,11 @@ class BareConversation extends Component {
     const {
       startTyping,
       stopTyping,
+      selectedChannel,
       user,
     } = this.props;
 
-    if (typing) {
-      startTyping(user.id);
-    }
-    else {
-      stopTyping(user.id);
-    }
-
-    publishTypingState(user.id, typing);
+    publishTypingState(selectedChannel.name, user, typing);
   }
 
   onMessageReceived(obj) {
@@ -194,10 +188,10 @@ class BareConversation extends Component {
       case 'state-change':
         if (presenceData.state) {
           if (presenceData.state.isTyping === true) {
-            startTyping(presenceData.uuid);
+            startTyping(presenceData.state.user);
           }
           else {
-            stopTyping(presenceData.uuid);
+            stopTyping(presenceData.state.user);
           }
         }
         break;
