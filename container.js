@@ -66,10 +66,6 @@ class BareContainer extends Component {
   componentDidMount() {
     this.props.connect();
   }
-
-  onReconnect() {
-    this.props.connect();
-  }
 }
 
 BareContainer.PropTypes = {
