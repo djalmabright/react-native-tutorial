@@ -1,4 +1,4 @@
-import * as pubnubService from '../services/pubnub';
+import {connect, disconnect} from '../services/pubnub';
 
 export const CONNECTING = 'CONNECT';
 export const CONNECTED = 'CONNECTED';
@@ -9,7 +9,7 @@ export const connectionActions = {
     return dispatch => {
       dispatch({type: CONNECTING});
 
-      return pubnubService.connect()
+      return connect()
         .then(({ uuid }) => {
           dispatch({type: CONNECTED, payload: uuid });
         })
@@ -25,8 +25,9 @@ export const connectionActions = {
   },
 
   disconnect() {
-    return dispatch => pubnubService.disconnect()
-      .then(() => dispatch({type: DISCONNECTED, payload: {}}));
+    return dispatch => {
+      disconnect().then(() => dispatch({type: DISCONNECTED, payload: {}}));
+    };
   },
 
   failure(error) {

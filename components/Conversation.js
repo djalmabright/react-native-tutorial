@@ -8,23 +8,31 @@ import {
   Dimensions,
 } from 'react-native';
 
-import ChatHistory from './ChatHistory';
-import ChatInput from './ChatInput';
-import ChatHeader from './ChatHeader';
-import ChatUsersTyping from './ChatUsersTyping';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import {ChatHistory} from './ChatHistory';
+import {ChatInput} from './ChatInput';
+import {ChatHeader} from './ChatHeader';
+import {ChatUsersTyping} from './ChatUsersTyping';
 
 import {conversationActions, connectionActions} from '../actions';
 
 import {channel} from '../constants';
 
-import * as pubnubService from '../services/pubnub';
+import {
+  history,
+  publishMessage,
+  publishTypingState,
+  subscribe,
+  addHistory,
+} from '../services/pubnub';
 
-import s from '../styles';
+import styles from '../styles';
 
 class BareConversation extends Component {
   constructor() {
     super();
+
     this.state = {
       subscription: null,
       menuOpen: false,
@@ -32,7 +40,12 @@ class BareConversation extends Component {
   }
 
   render() {
-    const {props} = this;
+    const {
+      history,
+      typingUsers,
+      userId,
+      selectedChannel,
+    } = this.props;
 
     const absStretch = {
       position: 'absolute',
@@ -42,20 +55,19 @@ class BareConversation extends Component {
       bottom: 0,
     };
 
-    const containerStyle = {
-      ...absStretch,
+    const containerStyle = Object.assign({}, absStretch, {
       backgroundColor: 'white',
-    };
+    });
 
     return (
-      <View style={[s.flx1, s.flxCol, s.selfStretch]}>
+      <View style={[styles.flx1, styles.flxCol, styles.selfStretch]}>
         <View style={containerStyle}>
           <ChatHeader
-            channel={props.selectedChannel} />
-          <ChatHistory ref="chatHistory" history={props.history} fetchHistory={() => this.fetchHistory()} />
-          <ChatUsersTyping users={props.typingUsers} />
+            channel={selectedChannel} />
+          <ChatHistory ref="chatHistory" history={history} fetchHistory={() => this.fetchHistory()} />
+          <ChatUsersTyping users={typingUsers} />
           <ChatInput
-            userId={props.userId}
+            userId={userId}
             setTypingState={typing => this.onTypingStateChanged(typing)}
             publishMessage={message => this.onPublishMessage(message)} />
         </View>
@@ -69,10 +81,10 @@ class BareConversation extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {props} = this;
+    const {clearHistory, selectedChannel} = this.props;
 
-    if (props.selectedChannel.name !== prevProps.selectedChannel.name) {
-      Promise.resolve(props.clearHistory())
+    if (selectedChannel.name !== prevProps.selectedChannel.name) {
+      Promise.resolve(clearHistory())
         .then(() => {
           this.subscribeToChannel();
           this.fetchHistory();
@@ -87,7 +99,7 @@ class BareConversation extends Component {
     }
   }
 
-  subscribeToChannel = () => {
+  subscribeToChannel() {
     const channel = this.props.selectedChannel.name;
 
     if (this.state.subscription) {
@@ -95,7 +107,7 @@ class BareConversation extends Component {
     }
 
     this.setState({
-      subscription: pubnubService.subscribe(
+      subscription: subscribe(
         channel,
         p => this.onPresenceChange(p),
         m => this.onMessageReceived(m)
@@ -103,10 +115,10 @@ class BareConversation extends Component {
     });
   }
 
-  fetchHistory = () => {
+  fetchHistory() {
     const {lastMessageTimestamp, selectedChannel, addHistory} = this.props;
 
-    pubnubService.history(selectedChannel.name, lastMessageTimestamp).then(response => {
+    history(selectedChannel.name, lastMessageTimestamp).then(response => {
       // make sure we're not duplicating our existing history
       if (response.messages.length > 0 &&
           lastMessageTimestamp !== response.startTimeToken) {
@@ -116,9 +128,11 @@ class BareConversation extends Component {
   }
 
   onTypingStateChanged(typing) {
-    const {props} = this;
-    const channel = props.selectedChannel.name;
-    pubnubService.publishTypingState(channel, props.userId, typing);
+    const {selectedChannel, userId} = this.props;
+
+    const channel = selectedChannel.name;
+
+    publishTypingState(channel, userId, typing);
   }
 
   onMessageReceived(obj) {
@@ -126,7 +140,7 @@ class BareConversation extends Component {
   }
 
   onPresenceChange(presenceData) {
-    const {props} = this;
+    const {startTyping, stopTyping} = this.props;
 
     switch (presenceData.action) {
       case 'join':
@@ -137,10 +151,10 @@ class BareConversation extends Component {
       case 'state-change':
         if (presenceData.state) {
           if (presenceData.state.isTyping === true) {
-            props.startTyping(presenceData.state.userId);
+            startTyping(presenceData.state.userId);
           }
           else {
-            props.stopTyping(presenceData.state.userId);
+            stopTyping(presenceData.state.userId);
           }
         }
         break;
@@ -149,10 +163,10 @@ class BareConversation extends Component {
     }
   }
 
-  onPublishMessage = (message) => {
+  onPublishMessage(message) {
     const channel = this.props.selectedChannel.name;
 
-    pubnubService.publishMessage(channel, message)
+    publishMessage(channel, message)
       .catch(error => {
         console.error('Failed to publish message:', error);
       });
@@ -175,9 +189,8 @@ const mapStateToProps = state =>
     }
   );
 
-export default connect(
+export const Conversation = connect(
   mapStateToProps,
-  {...conversationActions,
-   disconnect: connectionActions.disconnect}
-)(BareConversation);
-
+  Object.assign({}, conversationActions, {
+   disconnect: connectionActions.disconnect}))
+(BareConversation);

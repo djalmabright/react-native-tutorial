@@ -14,7 +14,7 @@ import {connect} from 'react-redux';
 import {connectionActions} from './actions';
 import {ConnectionState, config} from './constants';
 
-import Conversation from './components/Conversation';
+import {Conversation} from './components/Conversation';
 
 import styles from './styles';
 
@@ -32,7 +32,7 @@ const mapDispatchToProps =
       error => dispatch(connectionActions.failure()),
   });
 
-class Container extends Component {
+class BareContainer extends Component {
   render() {
     const {connectionState, failureTrace} = this.props;
 
@@ -72,9 +72,9 @@ class Container extends Component {
   }
 }
 
-Container.PropTypes = {
+BareContainer.PropTypes = {
   connectionState: PropTypes.object,
   failureTrace: PropTypes.object,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Container);
+export const Container = connect(mapStateToProps, mapDispatchToProps)(BareContainer);

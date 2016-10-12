@@ -7,31 +7,31 @@ import {
 
 const Spinner = require('react-native-spinkit');
 
-import User from './User';
+import {User} from './User';
 
-import s from '../styles';
+import styles from '../styles';
 
-export default class ChatUsersTyping extends Component {
+export class ChatUsersTyping extends Component {
   render() {
     const {users} = this.props;
 
     const itemStyle = [
-      s.flxRow,
-      s.rounded6,
-      s.bgSilver,
-      s.h2,
-      s.itemsCenter,
-      s.jcCenter,
+      styles.flxRow,
+      styles.rounded6,
+      styles.bgSilver,
+      styles.h2,
+      styles.itemsCenter,
+      styles.jcCenter,
       { left: 5, top: -5 }
     ];
 
     return (
-      <View style={[{flex: 0}, s.flxRow]}>
+      <View style={[{flex: 0}, styles.flxRow]}>
         {users.map(userId =>
           <View key={userId} style={itemStyle}>
             <User id={userId} size={32}/>
-            <View style={[s.ml1]}>
-              <Text style={[s.black, s.italics, s.f6, {fontStyle: 'italic'}]}>
+            <View style={[styles.ml1]}>
+              <Text style={[styles.black, styles.italics, styles.f6, {fontStyle: 'italic'}]}>
                 {userId}
               </Text>
             </View>
