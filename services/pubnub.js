@@ -1,4 +1,3 @@
-import {Set} from 'immutable';
 import PubNub from 'pubnub';
 
 import {
@@ -8,9 +7,9 @@ import {
 
 let connection;
 
-let presenceSubscriptions = Set();
+const presenceSubscriptions = new Set();
 
-let messageSubscriptons = Set();
+const messageSubscriptons = new Set();
 
 const identifier = () => Math.random().toString(10).slice(12);
 
@@ -85,8 +84,9 @@ const handshake = pubnub =>
   });
 
 export const subscribe = (channel, presenceHandler, messageHandler) => {
-  presenceSubscriptions = presenceSubscriptions.add(presenceHandler);
-  messageSubscriptons = messageSubscriptons.add(messageHandler);
+  presenceSubscriptions.add(presenceHandler);
+
+  messageSubscriptons.add(messageHandler);
 
   connect().then(({ pubnub }) => {
     pubnub.subscribe({
@@ -97,8 +97,9 @@ export const subscribe = (channel, presenceHandler, messageHandler) => {
 
   return {
     unsubscribe: () => {
-      presenceSubscriptions = presenceSubscriptions.delete(presenceHandler);
-      messageSubscriptons = messageSubscriptons.delete(messageHandler);
+      presenceSubscriptions.delete(presenceHandler);
+
+      messageSubscriptons.delete(messageHandler);
 
       return connect().then(handle => handle.unsubscribe({channel}));
     },
