@@ -1,11 +1,13 @@
 import {connect, disconnect} from '../services/pubnub';
 
-import {api} from '../services';
+import {FriendsService} from '../services';
 
 export const CONNECTING = 'CONNECT';
 export const CONNECTED = 'CONNECTED';
 export const DISCONNECTED = 'DISCONNECTED';
 export const STORE_FRIENDS = 'STORE_FRIENDS';
+
+const friendsService = new FriendsService();
 
 export const connectionActions = {
   connect(authenticationToken) {
@@ -13,15 +15,18 @@ export const connectionActions = {
       dispatch({type: CONNECTING});
 
       let user;
-      api.getUser(authenticationToken)
+
+      friendsService.getUser(authenticationToken)
         .then(res => {
           user = res;
+
           // use github id as pubnub uuid
           return connect(authenticationToken, user.id)
         })
         .then(() => {
           dispatch({type: CONNECTED, payload: user});
-          return api.getFriends(authenticationToken)
+
+          return friendsService.getFriends(authenticationToken);
         })
         .then(friends => {
           dispatch({type: STORE_FRIENDS, payload: friends})

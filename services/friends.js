@@ -1,11 +1,12 @@
 import {config} from '../constants';
 
-export class api {
-  static getUser(accessToken) {
+export class FriendsService {
+  getUser(accessToken) {
     return fetch(config.host + '/user?accessToken=' + accessToken)
       .then(res => res.json());
   }
-  static getFriends(accessToken) {
+
+  getFriends(accessToken) {
     return fetch(config.host + '/friends?accessToken=' + accessToken)
       .then(res => res.json());
   }
