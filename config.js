@@ -1,7 +1,7 @@
 export const config = {
   port: 3000,
   host: {
-    android: '10.0.2.2',
+    android: '10.0.3.2',
     ios: 'localhost',
   },
   pubnub: {
