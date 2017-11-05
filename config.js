@@ -7,7 +7,7 @@ export const config = {
   pubnub: {
     authKey: 'server-auth',
     subscribeKey: 'sub-c-6867f9ec-c1cb-11e7-b683-b67c7dbcdd0',
-    publishKey: 'pub-c-665f0ca6-59c7-4022-b9e7-d1648fe8c76f'
+    publishKey: 'pub-c-665f0ca6-59c7-4022-b9e7-d1648fe8c76f',
     secretKey: 'sub-c-6867f9ec-c1cb-11e7-b683-b67c7dbcdd00' 
   },
   github: {
@@ -16,8 +16,8 @@ export const config = {
       clientSecret: 'c965f686a901a338a81d6a50f81aad750705a328',
     },
     ios: {
-      clientId: '4591e867f77e815d446e'
-      clientSecret: 'a96497bed46dd07786b9b2fff16d59e25c9758cc',
+      clientId: '8c1694b64bc6b893da61',
+      clientSecret: '23519070dde7b31ec4ff9e7f0ead1e69dd98325b'
     },
   },
 };
