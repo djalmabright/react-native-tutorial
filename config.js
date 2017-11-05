@@ -8,7 +8,7 @@ export const config = {
     authKey: 'server-auth',
     subscribeKey: 'sub-c-6867f9ec-c1cb-11e7-b683-b67c7dbcdd0',
     publishKey: 'pub-c-665f0ca6-59c7-4022-b9e7-d1648fe8c76f'
-    secretKey: 'sec-c-ZjZkMzJiYzgtMTdhNC00MmZjLWIxNDEtMDVlNTkxZTQyOTkz' 
+    secretKey: 'sub-c-6867f9ec-c1cb-11e7-b683-b67c7dbcdd00' 
   },
   github: {
     android: {
